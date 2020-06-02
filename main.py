@@ -96,4 +96,3 @@ while True:
  
   pygame.draw.circle(screen, (col-100, col-25, col), (int(x), int(y)), 20)        
   pygame.display.flip()
-
