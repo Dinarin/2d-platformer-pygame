@@ -5,56 +5,78 @@ class Vector:
         self.x = x
         self.y = y
 
-    def __add__(self, v1):
-        self.x += v1.x
-        self.y += v1.y
+    def __add__(self, v):
+        return Vector(self.x+v.x, self.y+v.y)
 
-    def __sub__(self, v1):
-        self.x -= v1.x
-        self.y -= v1.y
+    def __sub__(self, v):
+        return Vector(self.x-v.x, self.y-v.y)
 
     def normcord(self):
         self.nx = self.x/self.length
         self.ny = self.y/self.length
 
-    def __mul__(self, a):
-        self.x = self.x * a
-        self.y = self.y * a
+    def __mul__(self, v):
+        return Vector(self.x*v.x, self.y*v.y)
   
-    def dot(self, a):
-        self.dot1 = self.x * a.x + self.y * a.y
+    def dot(self, v):
+        return self.x * v.x + self.y * v.y
 
     def get_tuple(self):
         return (self.x,self.y)
 
-class RectObject(pygame.Rect):
+    def abs(self, axis):
+        # 0 - x
+        # 1 - y
+        if not axis:
+            if self.x < 0:
+                return -self.x
+            else:
+                return self.x
+        if axis:
+            if self.y < 0:
+                return -self.y
+            else:
+                return self.y
+
+
+class GameObject():
     def __init__(self, coordinates, dimensions):
-        pygame.Rect.__init__(self, coordinates, dimensions)
+#        pygame.Rect.__init__(self, coordinates, dimensions)
+#        self.mass = 20
+        self.speed = Vector()
+        self.base_speed = Vector()
+        self.acceleration = Vector()
+        self.rect = pygame.Rect((0,0), dimensions)
+        self.sprite = pygame.sprite.Sprite()
+        self.sprite.image = pygame.Surface(dimensions)
+        self.sprite.rect = self.sprite.image.get_rect()
+
+        print("RECT", self.rect)
+        print("SPRITERECT", self.sprite.rect)
+        # Background transparency
+#        self.sprite.image.set_colorkey((255,0,255))  # setting magenta to be transparent
+        self.sprite.image.fill((255,0,255))  # filling background with magenta
+        self.sprite.rect = self.sprite.image.get_rect()
+
+        # Drawing circle
+        self.sprite.Group1 = pygame.sprite.Group(self.sprite)
     
-    def move_self(self, vector):
-        self.move_ip(vector.get_tuple())
+    def set_circle_sprite(self):
+        color=(0, 53, 255)
+        r = 20
+        pygame.draw.circle(self.sprite.image, color, (21,21), r) 
 
-    def collide_line_check(self, line):
-
-        clipped_line = self.clipline(line)
-
-        if clipped_line:
-            # If clipped_line is not an empty tuple then the line
-            # collides/overlaps with the rect. The returned value contains
-            # the endpoints of the clipped line.
-            return True
-        else:
-            return False
-
-    def collide_line_measure(self, line):
-
-        clipped_line = self.clipline(line)
-
-        if clipped_line:
-            # If clipped_line is not an empty tuple then the line
-            # collides/overlaps with the rect. The returned value contains
-            # the endpoints of the clipped line.
-            start, end = clipped_line
-            x1, y1 = start
-            x2, y2 = end
+    def apply_force(self, force):
+        self.acceleration += force
+        self.speed = self.base_speed + self.acceleration
+        print(self.speed.get_tuple())
+        self.rect.move_ip(self.speed.get_tuple())
+        self.sprite.rect.move_ip(self.speed.get_tuple())
     
+    def add_speed(self, vector):
+        self.base_speed += vector
+        self.rect.move_ip(self.speed.get_tuple())
+        self.sprite.rect.move_ip(self.speed.get_tuple())
+
+    def return_group(self):
+        return self.sprite.Group1
