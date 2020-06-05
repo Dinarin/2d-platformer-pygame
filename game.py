@@ -17,7 +17,7 @@ blue = (230, 255, 247)
 fps = 30
 dt = 1.0/fps
 accumulator = 0
-g = objects.Vector(0,0.1)
+g = objects.Vector2d(0,0.1)
 
 def update_game_physics(delta_t, g_acceleration, obj_list):
     # game object behaviour
@@ -64,7 +64,7 @@ clock = pygame.time.Clock()
 tt = 0
 
 # gravity
-jump = objects.Vector(0,-10)
+jump = objects.Vector2d(0,-10)
 pygame.draw.line(canvas_screen, (0,255,0), borders[1][0], borders[1][1])
 while True:
     # Each cycle is drawing one frame
