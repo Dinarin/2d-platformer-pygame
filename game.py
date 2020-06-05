@@ -14,6 +14,21 @@ canvas_topleft = (112, 84)
 circle_dimensions = (42, 42)
 blue = (230, 255, 247)
 
+fps = 30
+dt = 1.0/fps
+accumulator = 0
+g = objects.Vector(0,0.1)
+
+def update_game_physics(delta_t, g_acceleration, obj_list):
+    # game object behaviour
+#    print(canvas_screen.rect.y < circle_obj.rect.y)
+#    print(circle_obj)
+#    print(circle_obj.rect.bottom, canvas_screen.rect.bottom)
+#    if (circle_obj.rect.bottom < canvas_screen.rect.bottom) and not on_floor:
+    for obj in obj_list: 
+        obj.update_obj_physics(delta_t, g_acceleration)
+
+
 
 # Keyboard
 #borders_list = [(
@@ -41,7 +56,7 @@ print(borders)
 
 # Creating an object
 circle_obj = objects.GameObject(circle_coords, circle_dimensions)
-
+list_obj = [circle_obj]
 circle_obj.set_circle_sprite()
 
 # Game cycle
@@ -49,30 +64,29 @@ clock = pygame.time.Clock()
 tt = 0
 
 # gravity
-gravity = objects.Vector(0,1)
-jump = objects.Vector(0,-30)
+jump = objects.Vector(0,-10)
 pygame.draw.line(canvas_screen, (0,255,0), borders[1][0], borders[1][1])
 while True:
-    dt = clock.tick(10)
+    # Each cycle is drawing one frame
+
+    # Time cycle and events
+    accumulator += clock.tick(30)
     pressed = pygame.key.get_pressed()
     if pressed[pygame.K_w]:
-            circle_obj.add_speed(jump)
+            circle_obj.add_momentum(jump)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
-    
+    while (accumulator > dt):
+        update_game_physics(dt, g, list_obj)
+        accumulator -= dt
 
-    tt += dt
-    print(canvas_screen.rect.y < circle_obj.rect.y)
-    print(circle_obj)
-    print(circle_obj.rect.bottom, canvas_screen.rect.bottom)
-    if (circle_obj.rect.bottom < canvas_screen.rect.bottom) and not on_floor:
-        circle_obj.apply_force(gravity)
-    else:
-        on_floor = 1
-        circle_obj.rect.bottom = canvas_screen.rect.bottom
-        circle_obj.sprite.rect.bottom = canvas_screen.rect.bottom
+    # Rendering game
+    # updating object attributes before drawing
+    circle_obj.update_state()
+
+    # drawing object
     canvas_screen.draw_object(circle_obj)
     game_screen.blit(canvas_screen, canvas_topleft)
     pygame.draw.line(game_screen, (0,255,0), borders[1][0], borders[1][1], 10) 
