@@ -4,7 +4,8 @@ import math
 import pyganim
 import numpy as num
 
-#pictures
+
+# Animations
 
 anim_delay = 0.2
 anim_r = [('pixels/player1.png'),
@@ -28,17 +29,21 @@ anim_jump_l2 = [('pixels/playerjla.png', 0.2)]
 anim_jump_r2 = [('pixels/playerja.png', 0.2)]
 anim_idle2 = [('pixels/player0a.png', 0.2)]
 
-starim = 'pixels/star.png'
+starim = 'pixels/star.png'  # Image for star
 
+# Lists with animated pictures
 anim_p1 = [anim_r, anim_l, anim_jump_l, anim_jump_r, anim_idle]
 anim_p2 = [anim_r2, anim_l2, anim_jump_l2, anim_jump_r2, anim_idle2]
 
+# Switching game modes
 mode = ('editor', 'play')
 modesw = mode[0]
 
+# Color of the background
 COLOR = (200, 200, 200)
 
 
+# Declaring classes
 class Vector:
     def __init__(self, x = 0.0, y = 0.0):
         sqrt = (x*x+y*y)**0.5
@@ -67,137 +72,138 @@ class Vector:
 
 
 class Obstacle(pygame.sprite.Sprite):
-
     def __init__(self, pos, surface):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((50,100))
-        self.image.fill((0, 0, 0))
-        self.rect = self.image.get_rect()
-        self.pos = pos
-        surface.blit(self.image, pos)
+        pygame.sprite.Sprite.__init__(self)  # launching init of the parent class
+        self.image = pygame.Surface((50,100))  # create an attribute surface with fixed size
+        self.image.fill((0, 0, 0))  # make the surface black
+        self.rect = self.image.get_rect()  # make the attribute rect the same size as the image
+        self.pos = pos  # vector of the position
+        surface.blit(self.image, pos)  # draw the image on the argument surface
     
 
 class Bonus:
     def __init__(self, pos, count = 1):
-        self.image = pygame.Surface((15,15))
-        self.image.fill(COLOR)
-        self.img = pygame.Surface((15,15))
-        self.img.blit((self.image), (0,0))
-        self.pos = pos
-        self.count = count
+        self.image = pygame.Surface((15,15))  # create an attribute surface with fixed size
+        self.image.fill(COLOR)  # fill the image with the background color --- background surface
+        self.img = pygame.Surface((15,15))  # create an additional attribute surface with fixed size
+        self.img.blit((self.image), (0,0))  # draw the img surface on the additional surface --- image surface
+        self.pos = pos  # vector of the position
+        self.count = count  # number of stars
+
     def collect(self, player):
-        self.pos = (501, 501)
-        player.score += 500
-        self.image.fill(COLOR)
+        self.pos = (501, 501)  # position of the stars
+        player.score += 500  # score
+        self.image.fill(COLOR)  # fill the image with the background
 
     def update(self):
-        self.image.fill(COLOR)
-        self.img = pygame.Surface((15,15))
-        self.img.blit((self.image), (0,0))
+        self.image.fill(COLOR)  # fill the image with the background
+        self.img = pygame.Surface((15,15))  # creating a new surface
+        self.img.blit((self.image), (0,0))  # updating an image
 
 
 class Player(pygame.sprite.Sprite):
-            def __init__(self, pos, v, horspeed, controls, color, anim_ar):
-                pygame.sprite.Sprite.__init__(self)
-                self.base = Vector(0.0, 1.0)
-                self.pos = pos
-                self.v = v
-                self.horspeed = horspeed
-                self.baseline = 500.0 - 16.0       
-                self.jumpheight = -300 
-                self.controls = controls
-                self.color = color
-                self.movhor = 0
-                self.score = 0.0
-             #  self.circle = Circle(20, self.pos)
+    def __init__(self, pos, v, horspeed, controls, color, anim_ar):
+        pygame.sprite.Sprite.__init__(self)  # launching init of the parent class
+        # 
+        self.base = Vector(0.0, 1.0)
+        self.pos = pos
+        self.v = v
+        self.horspeed = horspeed
+        self.baseline = 500.0 - 16.0       
+        self.jumpheight = -300 
+        self.controls = controls
+        self.color = color
+        self.movhor = 0
+        self.score = 0.0
+        #self.circle = Circle(20, self.pos)
 
-                self.image = pygame.Surface((16, 16))
-                self.image.fill(COLOR)
-                self.state = ['ground', 'left']                
-                self.image.set_colorkey(COLOR)
-                self.rect = self.image.get_rect()
-                boltAnim = []
-                for anim in anim_ar[0]:
-                    boltAnim.append((anim, anim_delay))
-                self.boltAnimRight = pyganim.PygAnimation(boltAnim)
-                self.boltAnimRight.play()
-                boltAnim = []
-                for anim in anim_ar[1]:
-                    boltAnim.append((anim, anim_delay))
-                self.boltAnimLeft = pyganim.PygAnimation(boltAnim)
-                self.boltAnimLeft.play()
-                boltAnim = []
-                self.boltAnimStay = pyganim.PygAnimation(anim_ar[4])
-                self.boltAnimStay.play()
-                self.boltAnimStay.blit(self.image, (0, 0))
-                              
-                self.boltAnimJumpLeft= pyganim.PygAnimation(anim_ar[2])
-                self.boltAnimJumpLeft.play()
-                
-                self.boltAnimJumpRight= pyganim.PygAnimation(anim_ar[3])
-                self.boltAnimJumpRight.play()
+        self.image = pygame.Surface((16, 16))
+        self.image.fill(COLOR)
+        self.state = ['ground', 'left']                
+        self.image.set_colorkey(COLOR)
+        self.rect = self.image.get_rect()
+        boltAnim = []
+        for anim in anim_ar[0]:
+            boltAnim.append((anim, anim_delay))
+        self.boltAnimRight = pyganim.PygAnimation(boltAnim)
+        self.boltAnimRight.play()
+        boltAnim = []
+        for anim in anim_ar[1]:
+            boltAnim.append((anim, anim_delay))
+        self.boltAnimLeft = pyganim.PygAnimation(boltAnim)
+        self.boltAnimLeft.play()
+        boltAnim = []
+        self.boltAnimStay = pyganim.PygAnimation(anim_ar[4])
+        self.boltAnimStay.play()
+        self.boltAnimStay.blit(self.image, (0, 0))
+                      
+        self.boltAnimJumpLeft= pyganim.PygAnimation(anim_ar[2])
+        self.boltAnimJumpLeft.play()
+        
+        self.boltAnimJumpRight= pyganim.PygAnimation(anim_ar[3])
+        self.boltAnimJumpRight.play()
                                               
 
-            def update(self, screen, delta, g,k):
-            #  if self.side:
-                if self.pos.y <= self.baseline:
-                    gt = g*delta
-                else:
-                    gt = 0.0
-                    self.v.y = 0.0
-                self.v.x -= delta * self.v.x * k
-                self.v.y -= delta * self.v.y * k - gt
-                self.pos.x += self.v.x * delta
-                self.pos.y += self.v.y * delta
+    def update(self, screen, delta, g,k):
+        #  if self.side:
+        if self.pos.y <= self.baseline:
+            gt = g*delta
+        else:
+            gt = 0.0
+            self.v.y = 0.0
+        self.v.x -= delta * self.v.x * k
+        self.v.y -= delta * self.v.y * k - gt
+        self.pos.x += self.v.x * delta
+        self.pos.y += self.v.y * delta
         
-                if self.pos.x < 16:
-                    if self.v.x < 0:
-                        self.v.x = -self.v.x
-                    self.pos.x = 16.0
-                if self.pos.y < 16:
-                    if self.v.y < 0:
-                        self.v.y = -self.v.y
-                    self.pos.y = 16.0
-                if self.pos.x > 484:
-                    if self.v.x > 0:
-                        self.v.x = -self.v.x
-                    self.pos.x = 484
-                if self.pos.y > 484:
-                    if self.v.y > 0:
-                        self.v.y = 0
-                    self.pos.y = 484
+        if self.pos.x < 16:
+            if self.v.x < 0:
+                self.v.x = -self.v.x
+            self.pos.x = 16.0
+        if self.pos.y < 16:
+            if self.v.y < 0:
+                self.v.y = -self.v.y
+            self.pos.y = 16.0
+        if self.pos.x > 484:
+            if self.v.x > 0:
+                self.v.x = -self.v.x
+            self.pos.x = 484
+        if self.pos.y > 484:
+            if self.v.y > 0:
+                self.v.y = 0
+            self.pos.y = 484
 
-                self.draw(screen)
+        self.draw(screen)
 
-            def draw(self, screen):
-                if self.state[1] == 'left':
+        draw(self, screen):
+        if self.state[1] == 'left':
+            self.image.fill(COLOR)
+            if self.state[0] == 'up':
+                self.boltAnimJumpLeft.blit(self.image, (0, 0))
+            else:
+                self.boltAnimLeft.blit(self.image, (0, 0))
+
+        if self.state[1] == 'right':
+            self.image.fill(COLOR)
+            if self.state[0] == 'up':
+                self.boltAnimJumpRight.blit(self.image, (0, 0))
+            else:
+                self.boltAnimRight.blit(self.image, (0, 0))
+        if self.pos.y == self.baseline:
+            self.v.dot(self.base)
+            if self.v.dot1 <= 0.0:
+                self.state[0] = 'ground'
+                if self.v.x == 0:
                     self.image.fill(COLOR)
-                    if self.state[0] == 'up':
-                        self.boltAnimJumpLeft.blit(self.image, (0, 0))
-                    else:
-                        self.boltAnimLeft.blit(self.image, (0, 0))
-
-                if self.state[1] == 'right':
-                    self.image.fill(COLOR)
-                    if self.state[0] == 'up':
-                        self.boltAnimJumpRight.blit(self.image, (0, 0))
-                    else:
-                        self.boltAnimRight.blit(self.image, (0, 0))
-                if self.pos.y == self.baseline:
-                    self.v.dot(self.base)
-                    if self.v.dot1 <= 0.0:
-                        self.state[0] = 'ground'
-                        if self.v.x == 0:
-                            self.image.fill(COLOR)
-                            self.boltAnimStay.blit(self.image, (0, 0))
-                screen.blit(self.image, (self.pos.x, self.pos.y))
+                    self.boltAnimStay.blit(self.image, (0, 0))
+        screen.blit(self.image, (self.pos.x, self.pos.y))
 
 class Box:
 
     def __init__(self, width = 500, height = 500, npoint = Vector(50.0, 100.0)):
        
-        pygame.init
-        pygame.font.init
+        pygame.init()
+        pygame.font.init()
 
         self.controlsP1 = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN]
         self.controlsP2 = [pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s]
