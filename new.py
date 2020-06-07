@@ -3,8 +3,6 @@ import pygame
 import math
 import pyganim
 import numpy as num
-
-
 # Animations
 
 anim_delay = 0.2
@@ -39,8 +37,13 @@ anim_p2 = [anim_r2, anim_l2, anim_jump_l2, anim_jump_r2, anim_idle2]
 mode = ('editor', 'play')
 modesw = mode[0]
 
-# Color of the background
+# Global variables (temporary)
+player_sprite_size = (16,16)
+
+
 COLOR = (200, 200, 200)
+
+
 
 
 # Declaring classes
@@ -66,82 +69,25 @@ class Vector:
     def __mul__(self, a):
         self.x = self.x * a
         self.y = self.y * a
-  
+
     def dot(self, a):
         self.dot1 = self.x * a.x + self.y * a.y
 
-
-class Obstacle(pygame.sprite.Sprite):
-    def __init__(self, pos, surface):
-        pygame.sprite.Sprite.__init__(self)  # launching init of the parent class
-        self.image = pygame.Surface((50,100))  # create an attribute surface with fixed size
-        self.image.fill((0, 0, 0))  # make the surface black
-        self.rect = self.image.get_rect()  # make the attribute rect the same size as the image
-        self.pos = pos  # vector of the position
-        surface.blit(self.image, pos)  # draw the image on the argument surface
-    
-
-class Bonus:
-    def __init__(self, pos, count = 1):
-        self.image = pygame.Surface((15,15))  # create an attribute surface with fixed size
-        self.image.fill(COLOR)  # fill the image with the background color --- background surface
-        self.img = pygame.Surface((15,15))  # create an additional attribute surface with fixed size
-        self.img.blit((self.image), (0,0))  # draw the img surface on the additional surface --- image surface
-        self.pos = pos  # vector of the position
-        self.count = count  # number of stars
-
-    def collect(self, player):
-        self.pos = (501, 501)  # position of the stars
-        player.score += 500  # score
-        self.image.fill(COLOR)  # fill the image with the background
-
-    def update(self):
-        self.image.fill(COLOR)  # fill the image with the background
-        self.img = pygame.Surface((15,15))  # creating a new surface
-        self.img.blit((self.image), (0,0))  # updating an image
-
-
-class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, v, horspeed, controls, color, anim_ar):
-        pygame.sprite.Sprite.__init__(self)  # launching init of the parent class
-        # 
-        self.base = Vector(0.0, 1.0)  # base vector 
-        self.pos = pos  
-        self.v = v
-        self.horspeed = horspeed
-        self.baseline = 500.0 - 16.0       
-        self.jumpheight = -300 
-        self.controls = controls
-        self.color = color
-        self.movhor = 0
+class PlayerObjects:
+    def __init__(self, pos, v, horspeed, controls):
+        # Setting attribute
+        self.rect = pygame.Rect()
+        self.rect.center = pos
+        self.base = Vector(0.0, 1.0)  # base vector
+        self.v = v  # speed
+        self.horspeed = horspeed  # horizontal speed
+        self.baseline = 500.0 - 16.0  # where is the floor
+        self.jumpheight = -300  # jumpheight
+        self.controls = controls  # the controls provided in the argument work
+        self.movhor = 0  # ?
+        self.state = ['ground', 'left']
+        # Score from bonuses
         self.score = 0.0
-        #self.circle = Circle(20, self.pos)
-        self.image = pygame.Surface((16, 16))
-        self.image.fill(COLOR)
-        self.state = ['ground', 'left']                
-        self.image.set_colorkey(COLOR)
-        self.rect = self.image.get_rect()
-        boltAnim = []
-        for anim in anim_ar[0]:
-            boltAnim.append((anim, anim_delay))
-        self.boltAnimRight = pyganim.PygAnimation(boltAnim)
-        self.boltAnimRight.play()
-        boltAnim = []
-        for anim in anim_ar[1]:
-            boltAnim.append((anim, anim_delay))
-        self.boltAnimLeft = pyganim.PygAnimation(boltAnim)
-        self.boltAnimLeft.play()
-        boltAnim = []
-        self.boltAnimStay = pyganim.PygAnimation(anim_ar[4])
-        self.boltAnimStay.play()
-        self.boltAnimStay.blit(self.image, (0, 0))
-                      
-        self.boltAnimJumpLeft= pyganim.PygAnimation(anim_ar[2])
-        self.boltAnimJumpLeft.play()
-        
-        self.boltAnimJumpRight= pyganim.PygAnimation(anim_ar[3])
-        self.boltAnimJumpRight.play()
-                                              
 
     def update(self, screen, delta, g,k):
         #  if self.side:
@@ -154,7 +100,7 @@ class Player(pygame.sprite.Sprite):
         self.v.y -= delta * self.v.y * k - gt
         self.pos.x += self.v.x * delta
         self.pos.y += self.v.y * delta
-        
+
         if self.pos.x < 16:
             if self.v.x < 0:
                 self.v.x = -self.v.x
@@ -171,6 +117,78 @@ class Player(pygame.sprite.Sprite):
             if self.v.y > 0:
                 self.v.y = 0
             self.pos.y = 484
+
+# Graphical part of game objects
+class GameSprites(pygame.sprite.Sprite):
+    def __init__(self, obj):
+        pygame.sprite.Sprite.__init__(self)
+        self.rect = obj.rect
+        self.image = pygame.Surface((obj.w, obj.h))  # create an attribute surface with fixed size
+#        self.rect = self.image.get_rect()  # make the attribute rect the same size as the image
+#        self.rect.topleft = pos
+
+class Obstacle(GameSprites):
+    def __init__(self, pos, obj_size):
+        GameSprites.__init__(self, obj)
+        self.image.fill((0, 0, 0))  # make the surface black
+#        surface.blit(self.image, pos)  # draw the image on the argument surface
+
+# Doesn't work
+class Bonus(GameSprites):
+    def __init__(self, obj, count = 1):
+        GameSprites.__init__(self, obj)
+        self.image = pygame.Surface((15,15))  # create an attribute surface with fixed size
+#        self.image.fill(COLOR)  # fill the image with the background color --- background surface
+#        self.img = pygame.Surface((15,15))  # create an additional attribute surface with fixed size
+#        self.img.blit((self.image), (0,0))  # draw the img surface on the additional surface --- image surface
+        self.count = count  # number of stars
+
+
+# Moving part of game objects
+class MovingSprites(GameSprites):
+    moving_sprites = pygame.sprite.Group()
+    def __init__(self, obj):
+        GameSprites.__init__(self, obj)
+        moving_sprites.add(self.sprite)  # easily redrawing
+    def draw(self, surface, background):
+        moving_sprites.clear(surface, background)
+        moving_sprites.draw(surface)
+
+    def collect(self, player):
+        self.pos = (501, 501)  # position of the stars
+        player.score += 500  # score
+#        self.image.fill(COLOR)  # fill the image with the background
+
+    def update(self):
+        pass
+#        self.image.fill(COLOR)  # fill the image with the background
+#        self.img = pygame.Surface((15,15))  # creating a new surface
+#        self.img.blit((self.image), (0,0))  # updating an image
+
+
+# Class describing player sprite
+class PlayerSprites(MovingSprites):
+    def __init__(self, player_obj, anim_ar):
+        MovingSprites.__init__(self, player_obj)
+        boltAnim = []
+        for anim in anim_ar[0]:
+            boltAnim.append((anim, anim_delay))
+        self.boltAnimRight = pyganim.PygAnimation(boltAnim)
+        self.boltAnimRight.play()
+        boltAnim = []
+        for anim in anim_ar[1]:
+            boltAnim.append((anim, anim_delay))
+        self.boltAnimLeft = pyganim.PygAnimation(boltAnim)
+        self.boltAnimLeft.play()
+        boltAnim = []
+        self.boltAnimStay = pyganim.PygAnimation(anim_ar[4])
+        self.boltAnimStay.play()
+        self.boltAnimStay.blit(self.image, (0, 0))
+        self.boltAnimJumpLeft= pyganim.PygAnimation(anim_ar[2])
+        self.boltAnimJumpLeft.play()
+        self.boltAnimJumpRight= pyganim.PygAnimation(anim_ar[3])
+        self.boltAnimJumpRight.play()
+
 
         self.draw(screen)
 
@@ -195,160 +213,148 @@ class Player(pygame.sprite.Sprite):
                 if self.v.x == 0:
                     self.image.fill(COLOR)
                     self.boltAnimStay.blit(self.image, (0, 0))
-        screen.blit(self.image, (self.pos.x, self.pos.y))
+        screen.blit(self.image, (self.rect.x, self.rect.y))
 
+# Main window class
 class Box:
-
-    def __init__(self, width = 500, height = 500, npoint = Vector(50.0, 100.0)):
-       
+    def __init__(self, player_array, width = 500, height = 500, npoint = Vector(50.0, 100.0)):
         pygame.init()
         pygame.font.init()
-
+        # controls for players
         self.controlsP1 = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN]
         self.controlsP2 = [pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s]
+        # colors
         red = (204, 0, 0)
         blue = (0, 128, 255)
         self.green = (200, 255, 180)
         verdana = "/home/student/project2sem/Verdana.ttf"
         npoint2 = Vector(300, 100)
- #       obst= []
- #       for i in range (1, 8):
- #           obst[i] = (50 +50*i, 480-(30*i))
-        #physics const
-        self.k = 2.0
-        self.g = 1000.0
-        
+        #obst= []
+        #for i in range (1, 8):
+        #    obst[i] = (50 +50*i, 480-(30*i))
+
         #player initialization
-    
+
         basev = Vector(0.0, 0.0)
         basev2 = Vector(0.0, 0.0)
-        first = Player(npoint, basev, 1000.0, self.controlsP1, blue, anim_p1)
-        second = Player(npoint2, basev2, 1000.0, self.controlsP2, red, anim_p2)
-        
+
+        # dictionary with players data
+        players_dict = {
+                'player_obj': [PlayerObj(npoint, basev, g, controlsP1, player_obj_size, anim_p1), PlayerObj(npoint2, basev2, g, controlsP2, player_obj_size, anim_p2)],
+                'anim_p': [anim_p1, anim_p2]
+                }
+
+        # list with player sprites, not moving sprites and moving sprites
+        sprites_list = [PlayerSprites(players_dict['player_obj'][i], players_dict['anim_p'][i])  for i in range(2) ] + static_sprites_list + moving_sprites.sprites()
         #screen
         self.num = 0
-#        self.starlist = []
+        #self.starlist = []
         size = width, height = 500, 500
         self.screen = pygame.display.set_mode(size)
         self.image = self.screen.copy()
         self.image.fill(COLOR)
         pygame.display.set_caption('Game')
-        self.fix = self.screen.copy()
-        self.fix.fill(COLOR)
         pygame.font.init()
         font = pygame.font.Font(None, 30)
         text = font.render("GAME", True, self.green)
-        self.fix.blit(text, [230, 50])
-        
-       # for count in range(0, 50):
-       #     star = Bonus((501, 501), count)
-       #     self.starlist.append(star)
-      #  ar = pygame.PixelArray(self.image)
-  #      obst1 = Obstacle(obst[1], self.fix)
-  #      obst2 = Obstacle(obst[2], self.fix)
-  #     obst3 = Obstacle(obst[3], self.fix)
-  #     obst4 = Obstacle(obst[4], self.fix)
-  #     obst5 = Obstacle(obst[5], self.fix)
-  #     obst6 = Obstacle(obst[6], self.fix)
-  #     obst7 = Obstacle(obst[7], self.fix)
-  #     obst8 = Obstacle(obst[8], self.fix)
+        self.image.blit(text, [230, 50])
 
-        self.update(first, second)
-        
+        # for count in range(0, 50):
+        #     star = Bonus((501, 501), count)
+        #     self.starlist.append(star)
+        # ar = pygame.PixelArray(self.image)
+        # obst1 = Obstacle(obst[1], self.fix)
+        # obst2 = Obstacle(obst[2], self.fix)
+        # obst3 = Obstacle(obst[3], self.fix)
+        # obst4 = Obstacle(obst[4], self.fix)
+        # obst5 = Obstacle(obst[5], self.fix)
+        # obst6 = Obstacle(obst[6], self.fix)
+        # obst7 = Obstacle(obst[7], self.fix)
+        # obst8 = Obstacle(obst[8], self.fix)
 
-    def update(self, player1, player2):
-        a = Vector(501, 501)
-        array = (501, 501)
-        star = Bonus(a)
-        clock = pygame.time.Clock()
-        tt = 0
-        while True:
-            self.dt = clock.tick(50) /1000.0
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sys.exit()
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        sys.exit()
-                    elif event.type == pygame.MOUSEMOTION:
-                        if event.buttons[0]:
-                            pygame.draw.circle(self.fix, (0, 0, 0), event.pos, 20)
-                        elif event.buttons[2]:
-                            pygame.draw.circle(self.fix, COLOR, event.pos, 20)
-                            if self.space:
-                       # self.starlist[self.num].pos.x = pygame.MOUSEMOTION.pos[0]
-                       # self.starlist[self.num].pos.y = pygame.MOUSEMOTION.pos[1]
-                       # self.num += 1
-                                array = event.pos
-                                V = Vector(event.pos[0], event.pos[1])
-                                star = Bonus(V)
-                                self.space = 0
+        # updating
 
-            tt += self.dt
+    def update(self, obj_list):
+
             print("%f %f %f %f" % (tt, player1.v.x, player1.pos.x, player1.score))
             print("     %f %f %f %f" % (tt, player2.v.x, player2.pos.x, player2.score))
+
+            # Interface
             pygame.font.init()
             font = pygame.font.Font(None, 30)
             score1 = font.render("Player 1 %f" %player1.score, True, self.green)
             score2 = font.render("Player 2 %f" %player2.score, True, self.green)
-            self.fix.blit(score1, [0, 100])
-            self.fix.blit(score2, [250, 100])
+            self.image.blit(score1, [0, 100])
+            self.image.blit(score2, [250, 100])
 
-            self.image.fill((0, 25, 75))
-            self.image.blit(self.fix, (0,0))
-            #static graphics go here
-            self.keyboard(player1)
-            self.keyboard(player2)
-            
-            for j in range(0, self.num):
-                if self.starlist[j].pos == player1.pos:
-                    self.starlist[j].collect(player1)
-                if self.star[j].pos == player2.pos:
-                    self.starlist[j].collect(player2)
+            self.screen.fill((0, 25, 75))
+            self.screen.blit(self.fix, (0,0))
 
-          #  pygame.sprite.collide_rect(player1, )
-            player1.update(self.image, self.dt, self.g, self.k)
-            player2.update(self.image, self.dt, self.g, self.k)
-            self.image.blit(star.image, array)
-            self.screen.blit(self.image, (0,0))
+
+
+
+    def draw(self, sprite_list):
+            # Updating players
+            for sprite in sprite_list:
+                sprite.draw(self.screen)
             pygame.display.flip()
 
 
+# Keyboard method
+def keyboard_players(player):
+    pressed = pygame.key.get_pressed()
+    if pressed[player.controls[0]]:
+        player.state[1] = 'left'
+        player.v.x -= self.dt * player.horspeed
 
-    def keyboard(self, player1):
-        pressed = pygame.key.get_pressed()
-        if pressed[player1.controls[0]]:
-            player1.state[1] = 'left'
-            player1.v.x -= self.dt * player1.horspeed
-        
-        if pressed[player1.controls[1]]:
-            player1.state[1] = 'right'
-            player1.v.x += self.dt * player1.horspeed
+    if pressed[player.controls[1]]:
+        player.state[1] = 'right'
+        player.v.x += self.dt * player.horspeed
 
-        if pressed[player1.controls[2]]:
-            if player1.pos.y == player1.baseline:
-                player1.v.y = player1.jumpheight
-                player1.state[0] = 'up'
-            else:
-                x = 1
-        if pressed[player1.controls[3]]:
-            player1.v.x = 0.0
+    if pressed[player.controls[2]]:
+        if player.pos.y == player.baseline:
+            player.v.y = player.jumpheight
+            player.state[0] = 'up'
+        else:
+            x = 1
+    if pressed[player.controls[3]]:
+        player.v.x = 0.0
 
         if pressed[pygame.K_SPACE]:
             self.space = 1
 
-     #   if pressed[player2.controls[0]]:
-      #      player2.side = 0
-       #     player2.v.x -= self.dt * player2.horspeed
+#physics const
+k = 2.0
+g = 1000.0
+a = Vector(501, 501)
+array = (501, 501)
+star = Bonus(a)
+clock = pygame.time.Clock()
+tt = 0
+while True:
+    dt = clock.tick(50) /1000.0
+    tt += dt
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                sys.exit()
+            elif event.type == pygame.MOUSEMOTION:
+                if event.buttons[0]:
+                    pygame.draw.circle(self.image, (0, 0, 0), event.pos, 20)
+                elif event.buttons[2]:
+                    pygame.draw.circle(self.image, COLOR, event.pos, 20)
+#                    if self.space:
+#                        array = event.pos
+#                        V = Vector(event.pos[0], event.pos[1])
+#                        star = Bonus(V)
+#                        self.space = 0
 
-    #    if pressed[player2.controls[1]]:
-    #        player2.side = 1
-    #        player2.v.x += self.dt * player2.horspeed
+# Storing keyboards
 
-    #    if pressed[player2.controls[2]]:
-    #        if player2.pos.y == player2.baseline:
-    #            player2.v.y = player2.jumpheight
-    #        else:
-    #            x = 1
+player1.update(dt, g, k)
+player2.update(dt, g, k)
 
 world = Box()
+Box.update(player1, player2)

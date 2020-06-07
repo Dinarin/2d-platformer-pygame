@@ -52,7 +52,7 @@ class Vector2d:
         assert isinstance(vec, Vector2d)
         self.coord += vec.coord
         return not Vector2d.eq(self, old)
-    
+
     def mul_(self, x):
         old = Vector2d(self)
         assert isinstance(x, (float, int))
@@ -83,7 +83,7 @@ class Vector2d:
 #            return Vector(self.x*v.x, self.y*v.y)
 #        elif (type(v) == 'float') or (type(v) == 'int'):
 #            return Vector(self.x*v, self.y*v)
-#  
+#
 #    def dot(self, v):
 #        return self.x * v.x + self.y * v.y
 
@@ -108,12 +108,12 @@ class GameObject():
         self.sprite.rect = self.sprite.image.get_rect()
 
         # Drawing circle
-        self.sprite.Group1 = pygame.sprite.Group(self.sprite)
-    
+        self.sprite.Group1 = pygame.sprite.Group(self.sprite)  # adding sprite to group, so the old iteration of sprite will be easily erased
+
     def set_circle_sprite(self):
         color=(0, 53, 255)
         r = 20
-        pygame.draw.circle(self.sprite.image, color, (21,21), r) 
+        pygame.draw.circle(self.sprite.image, color, (21,21), r)
 
     # Physics
 
@@ -121,7 +121,7 @@ class GameObject():
         self.acceleration += force
         self.speed = self.base_speed + self.acceleration
         print(self.speed.get_tuple())
-            
+
     def add_momentum(self, vector):
         self.speed += vector
 
@@ -136,10 +136,9 @@ class GameObject():
         updates image before rendering
         """
         self.sprite.rect.move_ip(self.rect.x, self.rect.y)
-    
+
     # Rendering
     def return_group(self):
         return self.sprite.Group1
 
 #class GameEvent:
-

@@ -25,7 +25,7 @@ def update_game_physics(delta_t, g_acceleration, obj_list):
 #    print(circle_obj)
 #    print(circle_obj.rect.bottom, canvas_screen.rect.bottom)
 #    if (circle_obj.rect.bottom < canvas_screen.rect.bottom) and not on_floor:
-    for obj in obj_list: 
+    for obj in obj_list:
         obj.update_obj_physics(delta_t, g_acceleration)
 
 
@@ -87,9 +87,9 @@ while True:
     # Rendering game
     # updating object attributes before drawing
     circle_obj.update_state()
- 
+
     # drawing object
     canvas_screen.draw_object(circle_obj)
     game_screen.blit(canvas_screen, canvas_topleft)
-    pygame.draw.line(game_screen, (0,255,0), borders[1][0], borders[1][1], 10) 
+    pygame.draw.line(game_screen, (0,255,0), borders[1][0], borders[1][1], 10)
     pygame.display.flip()

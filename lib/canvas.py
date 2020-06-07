@@ -4,9 +4,9 @@ class Canvas(pygame.Surface):
     Main game image that will be blitted on player camera.
     ...
     Attributes
-    ---------- 
+    ----------
     Methods
-    ---------- 
+    ----------
     __init__(
     """
     def __init__(self, coordinates, dimensions, background):
