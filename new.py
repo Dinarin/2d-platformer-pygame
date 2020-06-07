@@ -105,8 +105,8 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, pos, v, horspeed, controls, color, anim_ar):
         pygame.sprite.Sprite.__init__(self)  # launching init of the parent class
         # 
-        self.base = Vector(0.0, 1.0)
-        self.pos = pos
+        self.base = Vector(0.0, 1.0)  # base vector 
+        self.pos = pos  
         self.v = v
         self.horspeed = horspeed
         self.baseline = 500.0 - 16.0       
@@ -116,7 +116,6 @@ class Player(pygame.sprite.Sprite):
         self.movhor = 0
         self.score = 0.0
         #self.circle = Circle(20, self.pos)
-
         self.image = pygame.Surface((16, 16))
         self.image.fill(COLOR)
         self.state = ['ground', 'left']                
@@ -175,7 +174,7 @@ class Player(pygame.sprite.Sprite):
 
         self.draw(screen)
 
-        draw(self, screen):
+    def draw(self, screen):
         if self.state[1] == 'left':
             self.image.fill(COLOR)
             if self.state[0] == 'up':
@@ -351,7 +350,5 @@ class Box:
     #            player2.v.y = player2.jumpheight
     #        else:
     #            x = 1
-
-    
 
 world = Box()
