@@ -2,6 +2,7 @@ import sys
 import pygame
 import math
 import pyganim
+import lib.spritesheet as spritesheet
 
 # moving sprites group
 moving_sprites = pygame.sprite.Group()
@@ -9,8 +10,14 @@ moving_sprites = pygame.sprite.Group()
 # window dimensions
 window = pygame.Rect((0,0), (500, 500))
 
+# norm global variable
+base = (0.0, 1.0)
+
+# load images with spritesheet module
+# todo
 
 # Animations
+player_background = 'pixels/background_for_player.png'
 
 anim_delay = 0.2
 anim_r = [('pixels/player1.png'),
@@ -90,7 +97,11 @@ class PlayerObjects:
         # parameter shows the position of the center of the object
         # so (left, top) will be (centerx - width/2, centery - height/2)
         self.rect = pygame.Rect((pos[0] - player_obj_size[0]/2, pos[1] - player_obj_size[1]/2), (player_obj_size[0], player_obj_size[1]))  # player_obj_size must be an int, as well as positions
-        self.base = (0.0, 1.0)  # base vector tuple
+
+        # norm vector tuple
+        self.basex = base[0]
+        self.basey = base[1]
+
         # speed
         self.vx = v[0]
         self.vy = v[1]
@@ -139,6 +150,8 @@ class GameSprites(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.rect = obj.rect
         self.image = pygame.Surface((obj.rect.w, obj.rect.h))  # create an attribute surface with fixed size
+        self.image.set_colorkey((0,0,0))  # setting black to be transparent
+
 #        self.rect = self.image.get_rect()  # make the attribute rect the same size as the image
 #        self.rect.topleft = pos
 
@@ -185,8 +198,10 @@ class MovingSprites(GameSprites):
 class PlayerSprites(MovingSprites):
     def __init__(self, player_obj, anim_ar):
         MovingSprites.__init__(self, player_obj)
-
         # animation
+        self.transparent = pygame.Surface((player_obj.rect.w, player_obj.rect.h))
+        self.transparent.set_colorkey((0,0,0))  # setting black to be transparent
+
         boltAnim = []
         for anim in anim_ar[0]:
             boltAnim.append((anim, anim_delay))
@@ -207,27 +222,27 @@ class PlayerSprites(MovingSprites):
         self.boltAnimJumpRight.play()
 
 
-#    def change_image(self):
-#        if self.state[1] == 'left':
-#            self.image.fill(COLOR)
-#            if self.state[0] == 'up':
-#                self.boltAnimJumpLeft.blit(self.image, (0, 0))
-#            else:
-#                self.boltAnimLeft.blit(self.image, (0, 0))
-#
-#        if self.state[1] == 'right':
-#            self.image.fill(COLOR)
-#            if self.state[0] == 'up':
-#                self.boltAnimJumpRight.blit(self.image, (0, 0))
-#            else:
-#                self.boltAnimRight.blit(self.image, (0, 0))
-#        if self.pos.y == self.baseline:
+    def change_image(self, player_obj):
+        self.image = self.transparent
+        one_image = []  # ensuring only one image will be blitted
+        if player_obj.state[1] == 'left':
+            if player_obj.state[0] == 'up':
+                one_image.append(self.boltAnimJumpLeft)
+            else:
+                one_image.append(self.boltAnimLeft)
+        elif player_obj.state[1] == 'right':
+            if player_obj.state[0] == 'up':
+                one_image.append(self.boltAnimJumpRight)
+            else:
+                one_image.append(self.boltAnimRight)
+        if player_obj.rect.bottom == player_obj.baseline:
 #            self.v.dot(self.base)
-#            if self.v.dot1 <= 0.0:
-#                self.state[0] = 'ground'
-#                if self.v.x == 0:
-#                    self.image.fill(COLOR)
-#                    self.boltAnimStay.blit(self.image, (0, 0))
+            dot_product = player_obj.vx * player_obj.basex + player_obj.vy * player_obj.basey
+            if dot_product <= 0.0:
+                player_obj.state[0] = 'ground'
+                if player_obj.vx == 0:
+                    one_image.append(self.boltAnimStay)
+        one_image[0].blit(self.image, (0,0))
 
 # Main window class
 class Box:
@@ -259,10 +274,12 @@ class Box:
 #            self.screen.fill((0, 25, 75))
 #            self.screen.blit(self.fix, (0,0))
 
-    def draw(self, sprite_list):
+    def draw(self, list_of_sprites):
             # Updating sprites
-            for sprite in sprite_list:
-                sprite.draw(self.screen, self.background)
+            for sprite in list_of_sprites:
+                sprite.draw(self.image, self.background)
+            # blitting image into screen
+            self.screen.blit(self.image, (0,0))
             pygame.display.flip()
 
 
@@ -366,8 +383,8 @@ while True:
     for player,i in zip(players_dict['player_obj'],range(2)):  # iterate simultaneously
         keyboard_players(player, dt)
         player.update(dt, g, k)
-        n = i + 1
-        print('Player{}: x={}, y={}'.format(n, player.rect.x, player.rect.y))
+        sprites_list[i].change_image(player)  # animate player
+        print('Player{}: x={}, y={}'.format(i+1, player.rect.x, player.rect.y))
 
 
     # drawing all sprites
