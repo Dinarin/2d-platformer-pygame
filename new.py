@@ -80,7 +80,6 @@ class Vector:
     def dot(self, a):
         self.dot1 = self.x * a.x + self.y * a.y
 
-#def vector_to_rect(vector)
 class PlayerObjects:
     def __init__(self, pos, v, horspeed, g, k, controls, player_obj_size, window):
         """
