@@ -13,11 +13,9 @@ window = pygame.Rect((0,0), (500, 500))
 # norm global variable
 base = (0.0, 1.0)
 
-# load images with spritesheet module
-# todo
 
 # Animations
-player_background = 'pixels/background_for_player.png'
+# player_background = 'pixels/background_for_player.png'
 
 anim_delay = 0.2
 anim_r = [('pixels/player1.png'),
@@ -52,7 +50,8 @@ mode = ('editor', 'play')
 modesw = mode[0]
 
 # Global variables (temporary)
-player_sprite_size = (16,16)
+# player_sprite_size = (16,16)
+player_sprite_size = (21,21)
 
 
 COLOR = (200, 200, 200)
@@ -196,34 +195,43 @@ class MovingSprites(GameSprites):
 
 # Class describing player sprite
 class PlayerSprites(MovingSprites):
-    def __init__(self, player_obj, anim_ar):
+#    def __init__(self, player_obj, anim_ar):
+    def __init__(self, sprite_images, player_obj):
+
         MovingSprites.__init__(self, player_obj)
         # animation
-        self.transparent = pygame.Surface((player_obj.rect.w, player_obj.rect.h))
-        self.transparent.set_colorkey((0,0,0))  # setting black to be transparent
+#        self.transparent = pygame.Surface((player_obj.rect.w, player_obj.rect.h))
+#        self.transparent.set_colorkey((0,0,0))  # setting black to be transparent
 
-        boltAnim = []
-        for anim in anim_ar[0]:
-            boltAnim.append((anim, anim_delay))
-        self.boltAnimRight = pyganim.PygAnimation(boltAnim)
-        self.boltAnimRight.play()
-        boltAnim = []
-        for anim in anim_ar[1]:
-            boltAnim.append((anim, anim_delay))
-        self.boltAnimLeft = pyganim.PygAnimation(boltAnim)
-        self.boltAnimLeft.play()
-        boltAnim = []
-        self.boltAnimStay = pyganim.PygAnimation(anim_ar[4])
-        self.boltAnimStay.play()
-        self.boltAnimStay.blit(self.image, (0, 0))
-        self.boltAnimJumpLeft= pyganim.PygAnimation(anim_ar[2])
-        self.boltAnimJumpLeft.play()
-        self.boltAnimJumpRight= pyganim.PygAnimation(anim_ar[3])
-        self.boltAnimJumpRight.play()
+        self.images = sprite_images
+        self.images_indexes = {
+                'running': [1,2,3],
+                'jumping': [4],
+                'static': [0]
+                }
+        #        self.images =
+#        boltAnim = []
+#        for anim in anim_ar[0]:
+#            boltAnim.append((anim, anim_delay))
+#        self.boltAnimRight = pyganim.PygAnimation(boltAnim)
+#        self.boltAnimRight.play()
+#        boltAnim = []
+#        for anim in anim_ar[1]:
+#            boltAnim.append((anim, anim_delay))
+#        self.boltAnimLeft = pyganim.PygAnimation(boltAnim)
+#        self.boltAnimLeft.play()
+#        boltAnim = []
+#        self.boltAnimStay = pyganim.PygAnimation(anim_ar[4])
+#        self.boltAnimStay.play()
+#        self.boltAnimStay.blit(self.image, (0, 0))
+#        self.boltAnimJumpLeft= pyganim.PygAnimation(anim_ar[2])
+#        self.boltAnimJumpLeft.play()
+#        self.boltAnimJumpRight= pyganim.PygAnimation(anim_ar[3])
+#        self.boltAnimJumpRight.play()
 
 
     def change_image(self, player_obj):
-        self.image = self.transparent
+#        self.image = self.transparent
         one_image = []  # ensuring only one image will be blitted
         if player_obj.state[1] == 'left':
             if player_obj.state[0] == 'up':
@@ -354,8 +362,20 @@ verdana = "/home/student/project2sem/Verdana.ttf"
 pygame.init()
 pygame.font.init()
 
+
 pygame.display.set_caption('Game')
+
 screen = Box()
+
+# load images with spritesheet module requires initialization of pygame.display!
+colorkey = (94, 129, 162)  # background color of spritesheet
+st = spritesheet.spritesheet('pixels/spritesheet_by_kenney_nl.png')
+sprite_dim_player1 = pygame.Rect((0,0), (21,21))
+sprite_dim_player2 = pygame.Rect((0,69), (21,21))
+sprites_strip = st.load_strip(sprite_dim_player1, 5, colorkey=colorkey)
+sprites_strip = st.load_strip(sprite_dim_player2, 5, colorkey=colorkey)
+
+
 while True:
     dt = clock.tick(50) /1000.0
     tt += dt
