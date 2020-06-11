@@ -151,6 +151,22 @@ class GameSprites(pygame.sprite.Sprite):
         self.image = pygame.Surface((obj.rect.w, obj.rect.h))  # create an attribute surface with fixed size
         self.image.set_colorkey((0,0,0))  # setting black to be transparent
 
+    def add_sprite_to_group(self, sprite_group):
+        sprite_group.add(self)
+
+
+class AnimSequence:
+    def __init__(self, frames):
+        self.images = []
+        if frames != '_copy':
+            self.numFrames = len(frames)
+            for i in range(self.numFrames):
+                frame = frames[i]
+                if not (type(frame) in (list, tuple) and len(frame) == 2):
+                    raise TypeError('Frame {} has incorrect format'.format(i))
+#    def which_groups(self):
+#        return self.groups()
+
 #        self.rect = self.image.get_rect()  # make the attribute rect the same size as the image
 #        self.rect.topleft = pos
 
@@ -175,11 +191,11 @@ class GameSprites(pygame.sprite.Sprite):
 class MovingSprites(GameSprites):
     def __init__(self, obj):
         GameSprites.__init__(self, obj)
-        moving_sprites.add(self)  # easily redrawing
+#        moving_sprites.add(self)  # easily redrawing
 
-    def draw(self, surface, background):
-        moving_sprites.clear(surface, background)
-        moving_sprites.draw(surface)
+#    def draw(self, surface, background):
+#        moving_sprites.clear(surface, background)
+#        moving_sprites.draw(surface)
 
     def collect(self, player):
         self.pos = (501, 501)  # position of the stars
@@ -230,7 +246,7 @@ class PlayerSprites(MovingSprites):
 #        self.boltAnimJumpRight.play()
 
 
-    def change_image(self, player_obj):
+    def update(self, player_obj):
 #        self.image = self.transparent
         one_image = []  # ensuring only one image will be blitted
         if player_obj.state[1] == 'left':
@@ -345,8 +361,10 @@ players_dict = {
         }
 
 # list with player sprites, not moving sprites and moving sprites
-sprites_list = [PlayerSprites(players_dict['player_obj'][i], players_dict['anim_p'][i])  for i in range(2) ] + moving_sprites.sprites()  # + static_sprites_list
-
+sprites_list = [PlayerSprites(players_dict['player_obj'][i])  for i in range(2) ] # + static_sprites_list
+# all sprites are added to moving group
+for sprite in sprites_list:
+    sprite.add_sprite_to_group(moving_sprites)
 # const
 a = Vector(501, 501)
 array = (501, 501)
@@ -403,11 +421,12 @@ while True:
     for player,i in zip(players_dict['player_obj'],range(2)):  # iterate simultaneously
         keyboard_players(player, dt)
         player.update(dt, g, k)
-        sprites_list[i].change_image(player)  # animate player
+#        sprites_list[i].change_image(player)  # animate player
         print('Player{}: x={}, y={}'.format(i+1, player.rect.x, player.rect.y))
 
 
     # drawing all sprites
-    screen.draw(sprites_list)
+    moving_sprites.update()
+    moving_sprites.draw()
 
     print('Time passed: {}'.format(tt))
