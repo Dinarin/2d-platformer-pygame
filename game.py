@@ -1,8 +1,8 @@
 import sys
 import pygame
 import math
-import pyganim
-import lib.spritesheet as spritesheet
+import pyganim as pa
+import lib.spritesheetgaps as spritesheet
 
 # moving sprites group
 moving_sprites = pygame.sprite.Group()
@@ -17,27 +17,27 @@ base = (0.0, 1.0)
 # Animations
 # player_background = 'pixels/background_for_player.png'
 
-anim_delay = 0.2
-anim_r = [('pixels/player1.png'),
-        ('pixels/player2.png'),
-        ('pixels/player3.png')]
-anim_l = [('pixels/player1l.png'),
-        ('pixels/player2l.png'),
-        ('pixels/player3l.png')]
-anim_jump_l = [('pixels/playerjl.png', 0.2)]
-anim_jump_r = [('pixels/playerj.png', 0.2)]
-anim_idle = [('pixels/player0.png', 0.2)]
-
-
-anim_r2 = [('pixels/player1a.png'),
-        ('pixels/player2a.png'),
-        ('pixels/player3a.png')]
-anim_l2 = [('pixels/player1la.png'),
-        ('pixels/player2la.png'),
-        ('pixels/player3la.png')]
-anim_jump_l2 = [('pixels/playerjla.png', 0.2)]
-anim_jump_r2 = [('pixels/playerja.png', 0.2)]
-anim_idle2 = [('pixels/player0a.png', 0.2)]
+#anim_delay = 0.2
+#anim_r = [('pixels/player1.png'),
+#        ('pixels/player2.png'),
+#        ('pixels/player3.png')]
+#anim_l = [('pixels/player1l.png'),
+#        ('pixels/player2l.png'),
+#        ('pixels/player3l.png')]
+#anim_jump_l = [('pixels/playerjl.png', 0.2)]
+#anim_jump_r = [('pixels/playerj.png', 0.2)]
+#anim_idle = [('pixels/player0.png', 0.2)]
+#
+#
+#anim_r2 = [('pixels/player1a.png'),
+#        ('pixels/player2a.png'),
+#        ('pixels/player3a.png')]
+#anim_l2 = [('pixels/player1la.png'),
+#        ('pixels/player2la.png'),
+#        ('pixels/player3la.png')]
+#anim_jump_l2 = [('pixels/playerjla.png', 0.2)]
+#anim_jump_r2 = [('pixels/playerja.png', 0.2)]
+#anim_idle2 = [('pixels/player0a.png', 0.2)]
 
 starim = 'pixels/star.png'  # Image for star
 
@@ -155,15 +155,15 @@ class GameSprites(pygame.sprite.Sprite):
         sprite_group.add(self)
 
 
-class AnimSequence:
-    def __init__(self, frames):
-        self.images = []
-        if frames != '_copy':
-            self.numFrames = len(frames)
-            for i in range(self.numFrames):
-                frame = frames[i]
-                if not (type(frame) in (list, tuple) and len(frame) == 2):
-                    raise TypeError('Frame {} has incorrect format'.format(i))
+#class AnimSequence:
+#    def __init__(self, frames):
+#        self.images = []
+#        if frames != '_copy':
+#            self.numFrames = len(frames)
+#            for i in range(self.numFrames):
+#                frame = frames[i]
+#                if not (type(frame) in (list, tuple) and len(frame) == 2):
+#                    raise TypeError('Frame {} has incorrect format'.format(i))
 #    def which_groups(self):
 #        return self.groups()
 
@@ -387,11 +387,26 @@ screen = Box()
 
 # load images with spritesheet module requires initialization of pygame.display!
 colorkey = (94, 129, 162)  # background color of spritesheet
-st = spritesheet.spritesheet('pixels/spritesheet_by_kenney_nl.png')
-sprite_dim_player1 = pygame.Rect((0,0), (21,21))
-sprite_dim_player2 = pygame.Rect((0,69), (21,21))
-sprites_strip = st.load_strip(sprite_dim_player1, 5, colorkey=colorkey)
-sprites_strip = st.load_strip(sprite_dim_player2, 5, colorkey=colorkey)
+st = spritesheet.spritesheet('pixels/small_spritesheet_by_kenney_nl.png')
+sprite_dim_players = [
+                        pygame.Rect((0,0), (21,21)),
+                        pygame.Rect((0,69), (21,21))
+                        ]
+sprites_strips = [st.load_strip(sprite_dim_players[i], 5, gap=2, colorkey=colorkey) for i in range(2)]
+anim_delay = 0.2
+# jic put the sprites in a dictionary
+[
+        {
+        'running_right': [sprites[1], sprites[2], sprites[3]],
+        'idle': [sprites[0]],
+        'jumping_right': [sprites[4]]
+        }
+        for sprites in sprites_strips
+]
+for player_sprites in sprites_strips:
+    AnimIdle = pa.PygAnimation((player_stripes[0],anim_delay))
+    AnimJumpRight = pa.Pyganimation((player,stripes[4], anim_delay))
+
 
 
 while True:
