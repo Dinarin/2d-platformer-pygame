@@ -1,22 +1,8 @@
-import sys, pygame
-import math
+import sys
+import pygame
 import lib.objects as objects
-import lib.canvas as canvas
+import lib.vector
 
-# Initializing pygame
-pygame.init()
-
-# Temporary variables
-window_size = (1024,768)
-canvas_size = (800,600)
-circle_coords = (350,250)
-canvas_topleft = (112, 84)
-circle_dimensions = (42, 42)
-blue = (230, 255, 247)
-
-#fps = 30
-#dt = 1.0/fps
-#accumulator = 0
 F = objects.Vector2d((0,0.1))
 
 def update_game_physics(delta_t, g_acceleration, obj_list):
@@ -67,10 +53,7 @@ frame_n = 0
 # gravity
 jump = objects.Vector2d((0,-0.5))
 pygame.draw.line(canvas_screen, (0,255,0), borders[1][0], borders[1][1])
-while True:
-    frame_n += 1
-    # Each cycle is drawing one frame
-    # Time cycle and events
+
     pressed = pygame.key.get_pressed()
     if pressed[pygame.K_w]:
             circle_obj.add_momentum(jump)

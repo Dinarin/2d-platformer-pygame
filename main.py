@@ -18,8 +18,10 @@ pygame.init()
 # earth = 0
 # baseline = 480.0
 
+
 class MainGame:
     def __init__(self):
+        pygame.init()
         # Variables
         size = width, height = 500, 500
         speed = [2, 2]
@@ -33,7 +35,6 @@ class MainGame:
         earth = 0
         self.baseline = 480.0
 
-        pygame.init()
         self.screen = pygame.display.set_mode(size)
         pygame.display.set_caption('Game')
 

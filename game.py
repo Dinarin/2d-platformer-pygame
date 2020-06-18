@@ -13,78 +13,10 @@ window = pygame.Rect((0,0), (500, 500))
 # norm global variable
 base = (0.0, 1.0)
 
-
-# Animations
-# player_background = 'pixels/background_for_player.png'
-
-#anim_delay = 0.2
-#anim_r = [('pixels/player1.png'),
-#        ('pixels/player2.png'),
-#        ('pixels/player3.png')]
-#anim_l = [('pixels/player1l.png'),
-#        ('pixels/player2l.png'),
-#        ('pixels/player3l.png')]
-#anim_jump_l = [('pixels/playerjl.png', 0.2)]
-#anim_jump_r = [('pixels/playerj.png', 0.2)]
-#anim_idle = [('pixels/player0.png', 0.2)]
-#
-#
-#anim_r2 = [('pixels/player1a.png'),
-#        ('pixels/player2a.png'),
-#        ('pixels/player3a.png')]
-#anim_l2 = [('pixels/player1la.png'),
-#        ('pixels/player2la.png'),
-#        ('pixels/player3la.png')]
-#anim_jump_l2 = [('pixels/playerjla.png', 0.2)]
-#anim_jump_r2 = [('pixels/playerja.png', 0.2)]
-#anim_idle2 = [('pixels/player0a.png', 0.2)]
-
-starim = 'pixels/star.png'  # Image for star
-
-# Lists with animated pictures
-anim_p1 = [anim_r, anim_l, anim_jump_l, anim_jump_r, anim_idle]
-anim_p2 = [anim_r2, anim_l2, anim_jump_l2, anim_jump_r2, anim_idle2]
-
-# Switching game modes
-mode = ('editor', 'play')
-modesw = mode[0]
-
 # Global variables (temporary)
 # player_sprite_size = (16,16)
 player_sprite_size = (21,21)
 
-
-COLOR = (200, 200, 200)
-
-
-
-
-# Declaring classes
-class Vector:
-    def __init__(self, x = 0.0, y = 0.0):
-        sqrt = (x*x+y*y)**0.5
-        self.length = sqrt
-        self.x = x
-        self.y = y
-
-    def __add__(self, v1):
-        self.x += v1.x
-        self.y += v1.y
-
-    def __sub__(self, v1):
-        self.x -= v1.x
-        self.y -= v1.y
-
-    def normcord(self):
-        self.nx = self.x/self.length
-        self.ny = self.y/self.length
-
-    def __mul__(self, a):
-        self.x = self.x * a
-        self.y = self.y * a
-
-    def dot(self, a):
-        self.dot1 = self.x * a.x + self.y * a.y
 
 class PlayerObjects:
     def __init__(self, pos, v, horspeed, g, k, controls, player_obj_size, window):
@@ -155,38 +87,6 @@ class GameSprites(pygame.sprite.Sprite):
         sprite_group.add(self)
 
 
-#class AnimSequence:
-#    def __init__(self, frames):
-#        self.images = []
-#        if frames != '_copy':
-#            self.numFrames = len(frames)
-#            for i in range(self.numFrames):
-#                frame = frames[i]
-#                if not (type(frame) in (list, tuple) and len(frame) == 2):
-#                    raise TypeError('Frame {} has incorrect format'.format(i))
-#    def which_groups(self):
-#        return self.groups()
-
-#        self.rect = self.image.get_rect()  # make the attribute rect the same size as the image
-#        self.rect.topleft = pos
-
-#class Obstacle(GameSprites):
-#    def __init__(self, pos, obj_size):
-#        GameSprites.__init__(self, obj)
-#        self.image.fill((0, 0, 0))  # make the surface black
-#        surface.blit(self.image, pos)  # draw the image on the argument surface
-
-## Doesn't work
-#class Bonus(GameSprites):
-#    def __init__(self, obj, count = 1):
-#        GameSprites.__init__(self, obj)
-#        self.image = pygame.Surface((15,15))  # create an attribute surface with fixed size
-#        self.image.fill(COLOR)  # fill the image with the background color --- background surface
-#        self.img = pygame.Surface((15,15))  # create an additional attribute surface with fixed size
-#        self.img.blit((self.image), (0,0))  # draw the img surface on the additional surface --- image surface
-#        self.count = count  # number of stars
-
-
 # Moving part of game objects
 class MovingSprites(GameSprites):
     def __init__(self, obj):
@@ -225,25 +125,6 @@ class PlayerSprites(MovingSprites):
                 'jumping': [4],
                 'static': [0]
                 }
-        #        self.images =
-#        boltAnim = []
-#        for anim in anim_ar[0]:
-#            boltAnim.append((anim, anim_delay))
-#        self.boltAnimRight = pyganim.PygAnimation(boltAnim)
-#        self.boltAnimRight.play()
-#        boltAnim = []
-#        for anim in anim_ar[1]:
-#            boltAnim.append((anim, anim_delay))
-#        self.boltAnimLeft = pyganim.PygAnimation(boltAnim)
-#        self.boltAnimLeft.play()
-#        boltAnim = []
-#        self.boltAnimStay = pyganim.PygAnimation(anim_ar[4])
-#        self.boltAnimStay.play()
-#        self.boltAnimStay.blit(self.image, (0, 0))
-#        self.boltAnimJumpLeft= pyganim.PygAnimation(anim_ar[2])
-#        self.boltAnimJumpLeft.play()
-#        self.boltAnimJumpRight= pyganim.PygAnimation(anim_ar[3])
-#        self.boltAnimJumpRight.play()
 
 
     def update(self, player_obj):
