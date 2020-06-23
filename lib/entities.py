@@ -226,10 +226,16 @@ class GravityEntities(MovingEntities):
         super().__init__(rect, img_dict)
 
         # attributes
+        phys_dict = {
+                'k': 2.0,
+                'g': 1000.0
+                }
+        g = phys_dict['g']
         self.gravity = True
         self.last_hline = None  # attribute that stores horizontal line
         self.speed = v_.Vector2d((0,0))
-        self.g_acceleration = v_.Vector2d((0,1000.0))
+        self.g_acceleration = v_.Vector2d((0,g))
+        self.k = phys_dict['k']
 
         # Attributes methods
     def get_mass(self):
@@ -249,7 +255,7 @@ class GravityEntities(MovingEntities):
             return False
 
     def is_on_floor(self):
-        y_line = self.last_hline[0][1]
+        y_line = 1008
         x1 = self.last_hline[0][0]
         x2 = self.last_hline[1][0]
         if (self.rect.bottom == y_line) and self.is_in_between_x(x1, x2):
@@ -259,15 +265,12 @@ class GravityEntities(MovingEntities):
 
 
     def fall(self, time):
-        k = 2.0
-        if self.is_on_floor == False:
-            self.speed += (self.g_acceleration * (1/self.mass)) * time
-            self.rect.y += self.speed.y * time
+        if self.rect.bottom is not 1008:
+            gt = self.g_acceleration * time
         else:
-            self.acceleration = v_.Vector2d((0,0))
-            self.speed.y = 0.0
-        self.speed.x = time * self.speed.x * k
-        self.speed.y -= time * self.speed.y * k
+            gt = v_.Vector2d((0.0,0.0))
+        self.speed.x -= time * self.speed.x * self.k
+        self.speed.y -= time * self.speed.y * self.k - gt.y
         self.rect.centerx += self.speed.x * time
         self.rect.centery += self.speed.y * time
 
@@ -334,6 +337,20 @@ class PlayerEntities(GravityEntities):
         """
         # constructor
         super().__init__(rect, img_dict)
+        phys_dict = {
+                'horspeed': 500.0,
+                'jumpheight': -300,
+                'movhor': 0.0
+                }
+        self.states_dict = {
+                'direction': 'left',
+                'vertical': 'ground',
+                }
+        self.anim_dict = {
+                ('left', 'ground'): 'run_left',
+                ('right','ground'): 'run_right'
+             }
+        self.last_state = None
         horspeed = 1000.0
         # horizontal speed
         self.horspeed = horspeed
@@ -352,26 +369,29 @@ class PlayerEntities(GravityEntities):
     def control(self, pressed, time):
         controls = self.controls
         if pressed[self.controls['left']]:
-          #  self.state[1] = 'left'
+            self.states_dict['direction'] = 'left'
             self.speed.x -= time * self.horspeed
 
         if pressed[self.controls['right']]:
-          #  self.state[1] = 'right'
+            self.states_dict['direction'] = 'right'
             self.speed.x += time * self.horspeed
 
         if pressed[self.controls['up']]:
             #   if self.rect.bottom == self.baseline:
             self.speed.y = self.jumpheight
-          #      self.state[0] = 'up'
+            self.states_dict['direction'] = 'center'
         if pressed[self.controls['down']]:
             self.speed.x = 0.0
           #  if pressed[pygame.K_SPACE]:
           #      self.space = 1
 
-
-
     def update(self):
         self.clear()
+        anim_tuple = (self.states_dict['direction'],\
+                self.states_dict['vertical'])
+        if ((self.last_state is not anim_tuple) and (anim_tuple in self.anim_dict.keys())):
+            self.start_animation(self.anim_dict[anim_tuple])
+            self.last_state = anim_tuple
         if self.current_animation == None:
             self.image.blit(self.img_dict['idle'][0], (0,0))
         else:
@@ -379,29 +399,29 @@ class PlayerEntities(GravityEntities):
 
 
 
-#class GameBorders:
-#    def __init__(self):
-#        """
-#        Class for game borders for different rectangular levels
-#        """
-#        self.borders = {
-#            'upside': (self.rect.topleft, self.rect.topright),
-#            'rightside': (self.rect.topright, self.rect.bottomright),
-#            'bottomside': (self.rect.bottomleft, self.rect.bottomright),
-#            'leftside': (self.rect.topleft, self.rect.bottomleft)
-#            }
-#
-#    def contains_sprite(self, sprite):
-#        return self.rect.contains(sprite.rect)
+class GameBorders:
+    def __init__(self):
+        """
+        Class for game borders for different rectangular levels
+        """
+        self.borders = {
+            'upside': (self.rect.topleft, self.rect.topright),
+            'rightside': (self.rect.topright, self.rect.bottomright),
+            'bottomside': (self.rect.bottomleft, self.rect.bottomright),
+            'leftside': (self.rect.topleft, self.rect.bottomleft)
+            }
+
+    def contains_sprite(self, sprite):
+        return self.rect.contains(sprite.rect)
 
 # Todo
 #class StaticObstacle(PhysicalObject):
 #    def __init__(self, pos, v, horspeed, controls):
 #        super().__init__(self, pic, dim)
 #
-#class StaticBonus(InteractiveObject):
-#    def __init__(self, pos, v, horspeed, controls):
-#        super().__init__(self, pic, dim)
+#class StaticBonus(GameEntity):
+#    def __init__(self, rect, img_dict):
+#        super().__init__(self, rect, img_dict)
 
 #class LandscapeGroup(GameSpritesGroup):
 #
@@ -523,7 +543,6 @@ if __name__ == "__main__":
         player=player_dict[key]
         player.set_mass(4)
         player.set_controls(controls[i])
-        player.start_animation('run_left')
         all_sprites.add_sprite(player)
         i+=1
 
