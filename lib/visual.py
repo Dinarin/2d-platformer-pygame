@@ -12,9 +12,9 @@ from lib import pyganim as pyganim_
 
 
 #sprite_rects = {[]}
-class SpriteSheet:
-    def __init__(self, imgfile, colorkey=None):
-        self.spritesheet = sp.spritesheet(imgfile)
+class SpritePicker:
+    def __init__(self, imgfile, tile_size, gap_size, border=None, colorkey=None):
+        self.spritesheet = sp.SpriteSheet(imgfile, tile_size, gap_size, border=border)
         self.colorkey = colorkey
         self.images = {}
         # Modified dict
@@ -28,19 +28,18 @@ class SpriteSheet:
         """
         for name in rows_dict:
             img_list = rows_dict[name]
-            images = self.spritesheet.load_strip(img_list[0], img_list[1],\
-                    img_list[2], self.colorkey)
+            images = self.spritesheet.load_strip(*img_list, self.colorkey)
             self.images[name] = []
             for image in images:
                 self.images[name].append(image)
 
-    def get_images(self, rect_dict):
+    def get_images(self, xy_dict):
         """
         Create surfaces from rects and put them into dictionary
         """
-        for name in rect_dict:
-            img_rect = rect_dict[name]
-            imaged = self.spritesheet.get_images(img_rect, self.colorkey)
+        for name in xy_dict:
+            img_xy = xy_dict[name]
+            images = self.spritesheet.get_images(img_xy, self.colorkey)
             self.images[name] = []
             for image in images:
                 self.images[name].append(image)
@@ -88,6 +87,13 @@ class SpriteSheet:
                 self.zoomed = True
             else:
                 self.modified = new_images
+
+class SpriteManager:
+    """
+    Argument is a spritesheet object
+    """
+    def __init__(self, spritesheet):
+        pass
 
 class GameView(pygame.Surface):
     """
@@ -145,18 +151,24 @@ if __name__ == "__main__":
     clock = pygame.time.Clock()
 
     # images_dict have rects from imagefile and the keys are added as the spritegroup
-    img_path = '../pixels/small_spritesheet_by_kenney_nl.png'
+    img_path = '../images/small_spritesheet_by_kenney_nl.png'
     dirname = os.path.dirname(__file__)
     filename = os.path.join(dirname, img_path)
 
 
     # Get images file and put name on images
-
+    tile_size = (21,21)
+    gap = 2
+    border =1
+#    images_at = {
+#            'player1_idle': ((0, 21)),
+#            'player2_idle': ((0, 21))
+#           }
     image_rows = {
-            'player1': ((0,0,21,21), 5, 2),  # rect, image count, gap in pixels
-            'player2': ((0,69,21,21), 5, 2)
+            'player1_running': ((0,0), 5),  # rect, image count
+            'player2_running': ((0,3), 5)
     }
-    sp = SpriteSheet(filename, colorkey=True)
+    sp = SpritePicker(filename, tile_size, gap, border, colorkey=True)
     sp.get_strips(image_rows)
     sp.zoom(4)
     print(sp.images)
@@ -181,7 +193,3 @@ if __name__ == "__main__":
                 pygame.display.update()
 
         pygame.display.update()
-
-#    level1 = Level('../pixels/small_spritesheet_by_kenney_nl.png')
-#    level1.set_player_sprite((0, 0, 21, 21), colorkey=True)
-#    player_sprite = level1.get_player_sprite
