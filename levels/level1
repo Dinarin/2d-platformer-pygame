@@ -1,25 +1,25 @@
 bfpd
-  bbb    bbb
-  ffff  ffff
-b b    b b
-ffff  ffff
-    b b
-    ffff
-  b b
-  ffff
-b b     b
-ffff  ffff
-    b b
-    ffff
-  b
-  ffff  ffff
-      b
-ffff  ffff
-        b
-  ffff  ffff
-    b
-    ffff
-
-ffff  ffff
-p
+..bbb....bbb
+..ffff..ffff
+b.b....b.b..
+ffff..ffff..
+....b.b.....
+....ffff....
+..b.b.......
+..ffff......
+b.b.....b...
+ffff..ffff..
+....b.b.....
+....ffff....
+..b.........
+..ffff..ffff
+......b.....
+ffff..ffff..
+........b...
+..ffff..ffff
+....b.......
+....ffff....
+............
+ffff..ffff..
+p...........
 dddddddddddd

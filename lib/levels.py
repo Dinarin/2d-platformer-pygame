@@ -13,9 +13,10 @@ class LevelData:
             'f': 'floating grass',
             'b': 'bonus'
             }
-    def __init__(self, dim):
+    def __init__(self, dim, lvl_img):
         self.dim = dim
         self.obj_map = {}
+        self.lvl_img = lvl_img
 
     def load_map(self, lvl_num):
         # Find path
@@ -39,7 +40,7 @@ class LevelData:
             else:
                 raise ValueError("Level string is not the right length")
         else:
-            raise Exception("Level is full")
+            raise Exception("Number of lines is {}, bigger than {} in file {} ".format(len(self.lvl_map), height, filename))
 
     def parse_map(self):
         """
@@ -57,11 +58,17 @@ class LevelData:
                             #and instances are in a list
                     if tile == code:
                         obj_map[self.map_symb[code]].append((x,y))
+                        print('Coords={},{}'.format(x,y))
                 x += 1
             x = 0
             y += 1
-            print('Coords={},{}'.format(x,y))
         self.obj_map = obj_map
+
+    def set_lvl_images(self, lvl_img):
+        """
+        Reads a dictionary of lvl images
+        """
+        self.lvl_img = lvl_img
 
 if __name__ == "__main__":
     dim = (24,24)

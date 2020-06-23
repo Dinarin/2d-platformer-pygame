@@ -59,6 +59,7 @@ class SpriteSheet(object):
         xy1 = (x, y)...
         Loads images from column x row y
         """
+        print(xys)
         return [self.image_at(xy, colorkey) for xy in xys]
     # Load a whole strip of images
     def load_strip(self, xy, image_count, colorkey = None):

@@ -12,7 +12,10 @@ from lib import pyganim as pyganim_
 
 
 #sprite_rects = {[]}
-class SpritePicker:
+class ImagePicker:
+    """
+    tile_size - tuple (width, height)
+    """
     def __init__(self, imgfile, tile_size, gap_size, border=None, colorkey=None):
         self.spritesheet = sp.SpriteSheet(imgfile, tile_size, gap_size, border=border)
         self.colorkey = colorkey
@@ -20,6 +23,21 @@ class SpritePicker:
         # Modified dict
         self.modified = None
         self.animations = {}
+        self.t_size = tile_size
+        self.t_modified = None
+        self.zoom = None
+
+    def zoom_image(self, surface):
+        # Can't zoom before the dict was zoomed
+        if self.zoom is not None:
+            multiplier = self.zoom
+            old_size = surface.get_size()
+            new_size = (int(old_size[0]*multiplier),\
+                int(old_size[1]*multiplier))
+            return pygame.transform.scale(surface, new_size)
+        else:
+            raise Exception("Should zoom entire dict before zooming\
+                        images")
 
     # Methods that input sprites in dict attribute
     def get_strips(self, rows_dict):
@@ -31,6 +49,10 @@ class SpritePicker:
             images = self.spritesheet.load_strip(*img_list, self.colorkey)
             self.images[name] = []
             for image in images:
+                # if dict is zoomed, zoom the image too
+                if self.zoom is not None:
+                    new_image = self.zoom_image(image)
+                    self.modified[name].append(new_image)
                 self.images[name].append(image)
 
     def get_images(self, xy_dict):
@@ -39,13 +61,17 @@ class SpritePicker:
         """
         for name in xy_dict:
             img_xy = xy_dict[name]
-            images = self.spritesheet.get_images(img_xy, self.colorkey)
+            images = self.spritesheet.images_at(img_xy, self.colorkey)
             self.images[name] = []
             for image in images:
+                # if dict is zoomed, zoom the image too
+                if self.zoom is not None:
+                    new_image = self.zoom_image(image)
+                    self.modified[name].append(new_image)
                 self.images[name].append(image)
 
     # Methods that return objects that were made from dict attribute
-    def animate(self, images_name, delay, loop):
+    def animate(self, images_name, delay, loop=True):
         """
         Make a pyganim object from a name and properties
         """
@@ -55,29 +81,43 @@ class SpritePicker:
             frames.append((surface, delay))
         self.animations[images_name] = pyganim_.PygAnimation(frames, loop)
 
-    def get_images(self, *images_names):
+    def return_images(self, *images_names, zoomed=True):
         """
         Return list of surfaces from names
         """
+        if zoomed:
+            images = self.modified
+        else:
+            images = self.images
+
         new_dict = {}
+        # Returns only names that were arguments
         for name in images_names:
-            new_dict[name] = self.images[name]
+            new_dict[name] = images[name]
+        return new_dict
 
-        return self.images[images_name]
+    def return_zoom_param(self):
+        """
+        Returns zoom and tile_size
+        """
+        if self.zoom is not None:
+            return (self.t_modified, self.zoom)
+        else:
+            raise Exception("Dict wasn't zoomed")
 
-    def zoom(self, multiplier, change=False):
+    def zoom_dict(self, multiplier):
         """
-        Zooms entire sprites dict without modifying it
+        Zooms entire sprite dict without modifying it
         """
+        self.zoom = multiplier
+        self.t_modified = (int(self.t_size[0]*multiplier), \
+                int(self.t_size[1]*multiplier))
         new_images = {}
         for name in self.images:
             images = self.images[name]
             new_images[name] = []
             for image in images:
-                old_size = image.get_size()
-                new_size = (int(old_size[0]*multiplier),\
-                        int(old_size[1]*multiplier))
-                new_image = pygame.transform.scale(image, new_size)
+                new_image = self.zoom_image(image)
                 new_images[name].append(new_image)
         self.modified = new_images
 
@@ -94,11 +134,16 @@ class SpritePicker:
         self.images[new_name] = new_list
 
 
-class LevelSprites:
+class LevelImages:
     """
-    Argument is a dictionary, where values are lists of surfaces or pyganim objects
+    img_dict is a dictionary received from ImagePicker, that assigns lists of surfaces or single pyganim objects to a unique name
+    lvl_dict is a dictionary that assigns a unique name from img_dict to a game object name
+    zoom is passed from ImagePicker
+    self.obj_dict is a dictionary that assigns lists of surfaces or pyganim objects to a game object name
     """
-    def __init__(self, img_dict, lvl_dict):
+    def __init__(self, img_dict, lvl_dict, tile_size, zoom=None):
+        self.zoom = zoom
+        self.tile_size = tile_size
         lvl_obj = {}
         for obj in lvl_dict:
             lvl_obj[obj] = {}
@@ -156,7 +201,7 @@ class GameWorld:
 
 if __name__ == "__main__":
     # Open window
-    resolution = (1024,768)
+    resolution = (1008,1008)
     bg_color = (94,129,162)
     screen = pygame.display.set_mode(resolution)
     pygame.display.set_caption('Game')
@@ -185,11 +230,11 @@ if __name__ == "__main__":
                 'run_left': 'p1_run_left'}
     }
 
-    sp = SpritePicker(filename, tile_size, gap, border, colorkey=True)
+    sp = ImagePicker(filename, tile_size, gap, border, colorkey=True)
     sp.get_strips(image_rows)
     sp.flip('p1_run_right','p1_run_left')
-    sp.zoom(4)
-    ls = LevelSprites(sp.images, lvl_dict)
+    sp.zoom(2)
+    ls = LevelImages(sp.images, lvl_dict)
     print(ls.obj_dict)
     new_images = sp.modified
     # Game cycle
