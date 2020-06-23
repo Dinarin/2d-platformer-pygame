@@ -1,6 +1,6 @@
 # Level 1
-import lib.classes
-import lib.pyganim
+import pygame
+from lib import visual as vi_
 
 
 sprites = SpriteManager('../pixels/small_spritesheet_by_kenney_nl.png',\

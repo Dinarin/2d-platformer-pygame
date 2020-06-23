@@ -1,10 +1,10 @@
 import pygame
 import sys
-import pygame.sprite
-import vector
-import spritesheetgaps as sp
-import pyganim
 import os
+
+from lib import vector as v_
+from lib import spritesheetgaps as sp
+from lib import pyganim as pyganim_
 
 # Events
 # event1 = Event(type, **attributes)
@@ -20,7 +20,6 @@ class SpriteSheet:
         # Modified dict
         self.modified = None
         self.zoomed = False
-
 
     # Methods that input sprites in dict attribute
     def get_strips(self, rows_dict):
@@ -55,7 +54,7 @@ class SpriteSheet:
         frames = []
         for surface in surfaces:
             frames.append((surface, delay))
-        return PygAnimation(frames, loop)
+        return pyganim_.PygAnimation(frames, loop)
 
     def get_images(self, *images_names):
         """
@@ -89,11 +88,6 @@ class SpriteSheet:
                 self.zoomed = True
             else:
                 self.modified = new_images
-
-
-
-
-
 
 class GameView(pygame.Surface):
     """
@@ -131,7 +125,7 @@ class GameView(pygame.Surface):
 class GameWorld:
     def __init__(self, sprites_dict, variables_dict):  # some sort of stored level data should be the arguments
         player_sprite = sprites_dict['player']
-        player1 = PlayerObject(player_sprite, )
+#        player1 = PlayerObject(player_sprite, )
         self.render_g = GameSpritesGroup(player1)
 
     def get_render_group(self):

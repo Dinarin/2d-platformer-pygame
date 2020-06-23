@@ -1,8 +1,10 @@
 import pygame
-import vector
-import spritesheetgaps as sp
-import visual as vi
+import sys
 import os
+from lib import visual as vi_
+from lib import vector as v_
+from lib import spritesheetgaps as sp_
+from lib import pyganim as anim_
 
 # Events
 # event1 = Event(type, **attributes)
@@ -24,7 +26,6 @@ class LevelManager:
         self.entity_id += 1
 
     def remove_entity(self, entity):
-
         del self.entities[entity.id]
 
     def get(self, entity_id):
@@ -41,6 +42,12 @@ class LevelManager:
 
     def get_player_sprite(self):
         return self.player
+
+
+    def load_map_data(..):
+        char c
+        int currentIndex = -1
+
 
 class LevelData:
     """
