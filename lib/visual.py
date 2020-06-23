@@ -19,7 +19,7 @@ class SpritePicker:
         self.images = {}
         # Modified dict
         self.modified = None
-        self.zoomed = False
+        self.animations = {}
 
     # Methods that input sprites in dict attribute
     def get_strips(self, rows_dict):
@@ -53,7 +53,7 @@ class SpritePicker:
         frames = []
         for surface in surfaces:
             frames.append((surface, delay))
-        return pyganim_.PygAnimation(frames, loop)
+        self.animations[images_name] = pyganim_.PygAnimation(frames, loop)
 
     def get_images(self, *images_names):
         """
@@ -67,33 +67,49 @@ class SpritePicker:
 
     def zoom(self, multiplier, change=False):
         """
-        Zooms entire sprites dict with or without modifying it
+        Zooms entire sprites dict without modifying it
         """
-        if self.zoomed:
-            raise Exception("Images were already zoomed")
-        else:
-            new_images = {}
-            for name in self.images:
-                images = self.images[name]
-                new_images[name] = []
-                for image in images:
-                    old_size = image.get_size()
-                    new_size = (int(old_size[0]*multiplier),\
-                            int(old_size[1]*multiplier))
-                    new_image = pygame.transform.scale(image, new_size)
-                    new_images[name].append(new_image)
-            if change:
-                self.images = new_images
-                self.zoomed = True
-            else:
-                self.modified = new_images
+        new_images = {}
+        for name in self.images:
+            images = self.images[name]
+            new_images[name] = []
+            for image in images:
+                old_size = image.get_size()
+                new_size = (int(old_size[0]*multiplier),\
+                        int(old_size[1]*multiplier))
+                new_image = pygame.transform.scale(image, new_size)
+                new_images[name].append(new_image)
+        self.modified = new_images
 
-class SpriteManager:
+    def flip(self, old_name, new_name, hor=True):
+        """
+        Flips images horizontally or vertically, calls them a new name and adds to dict
+        """
+        if hor:
+            bools = (True, False)
+        else:
+            bools = (False, True)
+        new_list = [pygame.transform.flip(image, *bools) \
+                    for image in self.images[old_name]]
+        self.images[new_name] = new_list
+
+
+class LevelSprites:
     """
-    Argument is a spritesheet object
+    Argument is a dictionary, where values are lists of surfaces or pyganim objects
     """
-    def __init__(self, spritesheet):
-        pass
+    def __init__(self, img_dict, lvl_dict):
+        lvl_obj = {}
+        for obj in lvl_dict:
+            lvl_obj[obj] = {}
+            for state in lvl_dict[obj]:
+                img_name = lvl_dict[obj][state]
+                lvl_obj[obj][state] = img_dict[img_name]
+        self.obj_dict = lvl_obj
+
+    def get_obj(self, obj):
+        return self.obj_dict[obj]
+
 
 class GameView(pygame.Surface):
     """
@@ -159,21 +175,23 @@ if __name__ == "__main__":
     # Get images file and put name on images
     tile_size = (21,21)
     gap = 2
-    border =1
-#    images_at = {
-#            'player1_idle': ((0, 21)),
-#            'player2_idle': ((0, 21))
-#           }
+    border = 1
     image_rows = {
-            'player1_running': ((0,0), 5),  # rect, image count
-            'player2_running': ((0,3), 5)
+            'p1_run_right': ((0,0), 5),  # rect, image count
+            'p2_run_right': ((0,3), 5)
     }
+    lvl_dict = {
+    'player1': {
+                'run_left': 'p1_run_left'}
+    }
+
     sp = SpritePicker(filename, tile_size, gap, border, colorkey=True)
     sp.get_strips(image_rows)
+    sp.flip('p1_run_right','p1_run_left')
     sp.zoom(4)
-    print(sp.images)
+    ls = LevelSprites(sp.images, lvl_dict)
+    print(ls.obj_dict)
     new_images = sp.modified
-    print(new_images)
     # Game cycle
     while True:
         # handling events

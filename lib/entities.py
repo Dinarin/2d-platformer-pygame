@@ -10,7 +10,7 @@ from lib import pyganim as anim_
 # event1 = Event(type, **attributes)
 class LevelManager:
     """
-    Stores level data
+    Adds entities according to level data
     """
 
     def __init__(self, spritefile):
@@ -49,65 +49,6 @@ class LevelManager:
         int currentIndex = -1
 
 
-class LevelData:
-    """
-    Stores level data
-    """
-
-    def __init__(self, spritefile):
-        self.entities = {}
-        self.entity_id = 0
-        self.tiles_list = []
-
-    # Managing entities
-    def add_entity(self, entity):
-
-        # Stores the entity then advances the current id
-        self.entities[self.entity_id] = entity
-        entity.id = self.entity_id
-        self.entity_id += 1
-
-    def remove_entity(self, entity):
-
-        del self.entities[entity.id]
-
-    def get(self, entity_id):
-
-        # Find the entity, given its id (or None if it is not found)
-        if entity_id in self.entities:
-            return self.entitites[entity_id]
-        else:
-            return None
-
-    # Managing sprites
-    def set_player_sprite(self, rect, colorkey = None):
-        self.player = self.sprites.image_at(rect, colorkey)
-
-    def get_player_sprite(self):
-        return self.player
-
-class LevelBasic(LevelData):
-    """
-    Class for basic levels. All tiles used are stored as a class variable
-    """
-    def __init__(self):
-        self.dim = (12, 24)
-        self.tiles = []
-
-    def add_line(self, string):
-        """
-        Method used in parsing a level file
-        """
-        half_len = self.dim[0]
-        height = self.dim[1]
-        if (len(self.tiles) < height):  # checking if the level is full
-            if (len(string) == half_len):
-                lvl_str = string + string[::-1]
-                self.tiles.append(lvl_str)
-            else:
-                raise ValueError("Level string is not the right length")
-        else:
-            raise Exception("Level is full")
 
 class GameSpritesGroup(pygame.sprite.RenderUpdates):
 
@@ -144,6 +85,7 @@ class GameEntity(pygame.sprite.DirtySprite):
         self.image = None
         self.rect = Rect((0,0), dim)
         self.images = img_dict
+        self.sprites = None
 
     def move(self):
         pass
