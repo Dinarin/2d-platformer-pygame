@@ -3,68 +3,68 @@ class Vector2d:
         """
         input a tuple of (x,y)
         """
-        # value check
+        # Type check
         if not ((isinstance(coords, tuple)) and (len(coords) == 2)):
-            raise ValueError("{} isn't a tuple of length 2".format(coords))
+            raise TypeError("{} isn't a tuple of length 2".format(coords))
         self.coords = list(coords)
         self.x = coords[0]
         self.y = coords[1]
 
     def __eq__(self, vec):
 
-        # Value check
+        # Type check
         if not isinstance(vec, Vector2d):
-            raise ValueError("Argument is a {} object, not a Vector2d object".format(type(vec)))
+            raise TypeError("Argument is a {} object, not a Vector2d object".format(type(vec)))
 
         return self.coords == vec.coords
 
     def __add__(self, vec):
 
-        # Value check
+        # Type check
         if not isinstance(vec, Vector2d):
-            raise ValueError("Argument is a {} object, not a Vector2d object".format(type(vec)))
+            raise TypeError("Argument is a {} object, not a Vector2d object".format(type(vec)))
 
         return Vector2d((self.x, self.y))
 
     def __mul__(self, num):
 
-        # Value check
+        # Type check
         if not isinstance(num, float):
-            raise ValueError("Argument is a {} object, not a float object".format(type(num)))
+            raise TypeError("Argument is a {} object, not a float object".format(type(num)))
 
         return Vector2d((self.x, self.y))
 
     def __sub__(self, vec):
 
-        # Value check
+        # Type check
         if not isinstance(vec, Vector2d):
-            raise ValueError("Argument is a {} object, not a Vector2d object".format(type(vec)))
+            raise TypeError("Argument is a {} object, not a Vector2d object".format(type(vec)))
 
         return Vector2d((self.x, self.y))
 
     def __matmul__(self, vec):
 
-        # Value check
+        # Type check
         if not isinstance(vec, Vector2d):
-            raise ValueError("Argument is a {} object, not a Vector2d object".format(type(vec)))
+            raise TypeError("Argument is a {} object, not a Vector2d object".format(type(vec)))
 
         return [a*b for a,b in zip(self.coords, vec.coords)]
 
     # reflected operators
     def __rmul__(self, num):
 
-        # Value check
+        # Type check
         if not isinstance(num, float):
-            raise ValueError("Argument is a {} object, not a float object".format(type(num)))
+            raise TypeError("Argument is a {} object, not a float object".format(type(num)))
 
         return Vector2d((self.x, self.y))
 
     # in place operators
     def __iadd__(self, vec):
 
-        # Value check
+        # Type check
         if not isinstance(vec, Vector2d):
-            raise ValueError("Argument is a {} object, not a Vector2d object".format(type(vec)))
+            raise TypeError("Argument is a {} object, not a Vector2d object".format(type(vec)))
 
         self.x += vec.x
         self.y += vec.y
@@ -73,9 +73,9 @@ class Vector2d:
 
     def __imul__(self, num):
 
-        # Value check
+        # Type check
         if not isinstance(num, float):
-            raise ValueError("Argument is a {} object, not a float object".format(type(num)))
+            raise TypeError("Argument is a {} object, not a float object".format(type(num)))
 
         self.x *= num
         self.y *= num
@@ -85,9 +85,9 @@ class Vector2d:
 
     def __isub__(self, vec):
 
-        # Value check
+        # Type check
         if not isinstance(vec, Vector2d):
-            raise ValueError("Argument is a {} object, not a Vector2d object".format(type(vec)))
+            raise TypeError("Argument is a {} object, not a Vector2d object".format(type(vec)))
 
         self.x -= vec.x
         self.y -= vec.y
@@ -104,6 +104,12 @@ class Vector2d:
     # print
     def __str__(self):
         return str(self.coords)
+
+    def set(self, xy):
+        x = xy[0]
+        y = xy[1]
+        self.x = x
+        self.y = y
 
 
 if __name__ == "__main__":

@@ -54,7 +54,7 @@ frame_n = 0
 jump = objects.Vector2d((0,-0.5))
 pygame.draw.line(canvas_screen, (0,255,0), borders[1][0], borders[1][1])
 
-    pressed = pygame.key.get_pressed()
+pressed = pygame.key.get_pressed()
     if pressed[pygame.K_w]:
             circle_obj.add_momentum(jump)
 

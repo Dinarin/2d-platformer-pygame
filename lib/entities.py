@@ -1,126 +1,47 @@
 import pygame
-import sys
-import pygame.sprite
 import vector
+import spritesheetgaps as sp
+import visual as vi
+import os
 
 # Events
 # event1 = Event(type, **attributes)
+
 class Level:
     """
     Stores level data
     """
 
-    def __init__(self, player_image, background_image):
-        self.player = player_sprite
+    def __init__(self, spritefile):
+        self.entities = {}
+        self.entity_id = 0
 
+    # Managing entities
+    def add_entity(self, entity):
 
-class MainGame:
-    def __init__(self, resolution):
+        # Stores the entity then advances the current id
+        self.entities[self.entity_id] = entity
+        entity.id = self.entity_id
+        self.entity_id += 1
 
-        # initializing pygame
-        pygame.init()
+    def remove_entity(self, entity):
 
-        # opening window
-        self.screen = pygame.display.set_mode(resolution)
-        self.state = 'running'
-        self.clock = pygame.time.Clock()
+        del self.entities[entity.id]
 
-        pygame.display.set_caption('Game')
+    def get(self, entity_id):
 
-    def start_game(self):
-        # variables
-        # Temporary variables
-        window_size = (1024,768)
-        canvas_size = (800,600)
-        circle_coords = (350,250)
-        canvas_topleft = (112, 84)
-        circle_dimensions = (42, 42)
-        blue = (230, 255, 247)
+        # Find the entity, given its id (or None if it is not found)
+        if entity_id in self.entities:
+            return self.entitites[entity_id]
+        else:
+            return None
 
-        main_dict = {
-#                'background': '',
-            'player': {
+    # Managing sprites
+    def set_player_sprite(self, rect, colorkey = None):
+        self.player = self.sprites.image_at(rect, colorkey)
 
-    }
-                }
-
-        # Background
-        bg_image = pygame.Surface(canvas_size)
-        bg_image.fill((163,242,211))
-        phys_dict = {
-                'g': 1000.0,
-                'k': 2.0
-                }
-
-        # Creating game objects
-        camera = GameView(canvas_topleft, canvas_size, bg_image)  # gameview
-        activity = GameActivity(sprites_dict, phys_dict)
-
-        # Game cycle
-        while True:
-            frame_n += 1
-            # Each cycle is drawing one frame
-
-            # handling events
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sys.exit()
-
-            # catching keys from keyboard
-            pressed = pygame.key.get_pressed()
-            #assign_event_to keys(pressed)
-
-            # updating game
-
-
-            # drawing screen
-            camera.find_render_group()
-            changed_rects = camera.render()
-            pygame.display.update(changed_rects)
-
-
-class GameView(pygame.Surface):
-    """
-    Main game image that will be blitted on player camera.
-    ...
-    Attributes
-    ----------
-    Methods
-    ----------
-    __init__(
-    """
-    def __init__(self, coordinates, dimensions, background):
-        pygame.Surface.__init__(self, dimensions)
-        self.blit(background, (0,0))
-        self.display = background.copy()
-        self.rect = pygame.Rect(coordinates, dimensions)
-
-    # main rendering methods of the game
-    def update(self, active_group):
-        """
-        Updates sprites that are changing
-        """
-        active_group.update()
-
-    def render(self):
-        """
-        Returns a rect list that should be passed to pygame.display.update()
-        """
-        return self.render_group.draw(self)
-
-    def find_render_group(self, activity):
-        self.render_group = activity.get_render_group
-
-
-class GameActivity:
-    def __init__(self, sprites_dict, variables_dict):  # some sort of stored level data should be the arguments
-        player_sprite = sprites_dict['player']
-        player1 = PlayerObject(player_sprite, )
-        self.render_g = GameSpritesGroup(player1)
-
-    def get_render_group(self):
-        return self.render_g
-
+    def get_player_sprite(self):
+        return self.player
 
 class GameSpritesGroup(pygame.sprite.RenderUpdates):
 
@@ -136,8 +57,8 @@ class GameSpritesGroup(pygame.sprite.RenderUpdates):
         self.add(sprite)
 
 
-class GameObject(pygame.sprite.DirtySprite):
-    def __init__(self, pic, dim):
+class GameEntity(pygame.sprite.DirtySprite):
+    def __init__(self, img_dict, dim):
         """
         Class for game objects
         dim - (height, width)
@@ -154,16 +75,20 @@ class GameObject(pygame.sprite.DirtySprite):
         #self._quality = object_dict['quality']
 
         # Setting sprite attributes
-        self.image = pic
+        self.image = None
         self.rect = Rect((0,0), dim)
+        self.images = img_dict
 
     def move(self):
         pass
+
     def update(self):  # drawing method
         pass
 
+    def set_sprite(self):
+        pass
 
-class InteractiveObject(GameObject):
+class InteractiveEntity(GameEntity):
     def __init__(self, pic, dim):
         """
         Class for interactive game objects
@@ -192,7 +117,7 @@ class InteractiveObject(GameObject):
     def update(self):
         pass
 
-class MovingObject(GameObject):
+class MovingEntity(GameEntity):
     def __init__(self, pic, dim):
         """
         Class for moving game objects
@@ -210,7 +135,7 @@ class MovingObject(GameObject):
         pass
 
 
-class GravityObject(MovingObject):
+class GravityEntity(MovingEntity):
     def __init__(self, pic, dim):
         """
         Class for moving game objects that obey gravity
@@ -252,14 +177,14 @@ class GravityObject(MovingObject):
         self.acceleration += force
         self.speed = self.base_speed + self.acceleration
 
-    def move(self):
+    def move(self, time):
         if self.is_on_floor == False:
             self.speed += (g_acceleration * (1/self.mass)) * delta_t
             self.rect.y += self.speed.y * delta_t
         else:
             self.acceleration = 0.0
             self.v.y = 0.0
-        self.v.x -= delta * self.v.x * k
+        self.speed = time * self.v.x * k
         self.v.y -= delta * self.v.y * k - gt
         self.rect.centerx += self.v.x * delta
         self.rect.centery += self.v.y * delta
@@ -267,7 +192,7 @@ class GravityObject(MovingObject):
 
 #    def update(self, delta, g, k):
 
-class PhysicalObject(InteractiveObject):
+class PhysicalEntity(InteractiveEntity):
     def __init__(self, pic, dim):
         """
         Class for game objects that have impassable borders
@@ -319,7 +244,7 @@ class PhysicalObject(InteractiveObject):
         self.last_hline = down_line
 
 
-class PlayerObject(GravityObject, PhysicalObject):
+class PlayerEntity(GravityEntity, PhysicalEntity):
     def __init__(self, pic, dim, controls):
         """
         pos, v, horspeed - lists
@@ -334,7 +259,7 @@ class PlayerObject(GravityObject, PhysicalObject):
 
 
 
-class GameBorder(InteractiveObject):
+class GameBorder(InteractiveEntity):
     def __init__(self, pic, dim):
         """
         Class for game borders for different rectangular levels
@@ -385,6 +310,52 @@ class GameBorder(InteractiveObject):
 
 
 if __name__ == "__main__":
+    # Open window
     resolution = (1024,768)
-    game = MainGame(resolution)
-    game.start_game()
+    bg_color = (94,129,162)
+    screen = pygame.display.set_mode(resolution)
+    pygame.display.set_caption('Game')
+    bg_image = pygame.Surface(resolution)
+    bg_image.fill(bg_color)
+    screen.blit(bg_image, (0,0))
+    # Clock
+    clock = pygame.time.Clock()
+
+    # sprites_dict have rects from spritefile and the keys are added as the spritegroup
+    sprites_path = '../pixels/small_spritesheet_by_kenney_nl.png'
+    dirname = os.path.dirname(__file__)
+    filename = os.path.join(dirname, sprites_path)
+
+
+    # Get sprites file and put name on sprites
+
+    sprite_rows = {
+            'player1': ((0,0,21,21), 5, 2),  # rect, image count, gap in pixels
+            'player2': ((0,69,21,21), 5, 2)
+    }
+    sp = vi.SpriteSheet(filename, colorkey=True)
+    sp.get_strips(sprite_rows)
+    sp.zoom(3)
+    print(sp.sprites)
+    new_sprites = sp.modified
+    print(new_sprites)
+    # Game cycle
+    while True:
+        # handling events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+
+        # updating game
+        time_passed = clock.tick(30)
+        time_passed_seconds = time_passed / 1000.0
+
+        # drawing screen
+        for key in new_sprites:
+            for sprite in new_sprites[key]:
+                screen.blit(sprite, (500,500))
+                pygame.time.wait(1000)
+                pygame.display.update()
+
+        pygame.display.update()
+
