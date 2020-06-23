@@ -118,8 +118,12 @@ class GameObjects(pygame.sprite.DirtySprite):
         #self._quality = object_dict['quality']
 
         # Setting sprite attributes
-        self.image = None
         self.rect = pygame.Rect(rect)
+        self.image = pygame.Surface((self.rect.width, self.rect.height))
+        self.colorkey = (94,129,162)
+        self.image.fill(self.colorkey)
+        self.image.set_colorkey(self.colorkey)
+
         self.images = img_dict
 
     def move(self):
@@ -130,6 +134,9 @@ class GameObjects(pygame.sprite.DirtySprite):
 
     def set_sprite(self):
         pass
+
+    def clear(self):
+        self.image.fill(self.colorkey)
 
 class GameTiles(GameObjects):
     def __init__(self):
@@ -153,9 +160,6 @@ class GameEntities(GameObjects):
         #self._quality = object_dict['quality']
 
         # Setting sprite attributes
-        self.image = None
-        self.images = img_dict
-        self.sprites = None
 
     def move(self):
         pass
@@ -224,6 +228,8 @@ class GravityEntities(MovingEntities):
         # attributes
         self.gravity = True
         self.last_hline = None  # attribute that stores horizontal line
+        self.speed = v_.Vector2d((0,0))
+        self.g_acceleration = v_.Vector2d((0,1000.0))
 
         # Attributes methods
     def get_mass(self):
@@ -251,24 +257,23 @@ class GravityEntities(MovingEntities):
         else:
             return False
 
-    def apply_force(self, force):
-        self.acceleration += force
-        self.speed = self.base_speed + self.acceleration
 
-    def move(self, time):
+    def fall(self, time):
+        k = 2.0
         if self.is_on_floor == False:
-            self.speed += (g_acceleration * (1/self.mass)) * delta_t
-            self.rect.y += self.speed.y * delta_t
+            self.speed += (self.g_acceleration * (1/self.mass)) * time
+            self.rect.y += self.speed.y * time
         else:
-            self.acceleration = 0.0
-            self.v.y = 0.0
-        self.speed = time * self.v.x * k
-        self.v.y -= delta * self.v.y * k - gt
-        self.rect.centerx += self.v.x * delta
-        self.rect.centery += self.v.y * delta
+            self.acceleration = v_.Vector2d((0,0))
+            self.speed.y = 0.0
+        self.speed.x = time * self.speed.x * k
+        self.speed.y -= time * self.speed.y * k
+        self.rect.centerx += self.speed.x * time
+        self.rect.centery += self.speed.y * time
 
 
-#    def update(self, delta, g, k):
+    def update(self, time):
+        self.gravity(time)
 
 class PhysicalEntities(InteractiveEntities):
     def __init__(self, rect, img_dict):
@@ -329,14 +334,48 @@ class PlayerEntities(GravityEntities):
         """
         # constructor
         super().__init__(rect, img_dict)
-
+        horspeed = 1000.0
         # horizontal speed
-        #self.horspeed = horspeed
+        self.horspeed = horspeed
         self.jumpheight = -300  # jumpheight
-        self.image = img_dict['idle'][0]
+        self.img_dict = img_dict
+        self.current_animation = None
+
+    def start_animation(self, animation_name):
+        current_animation = self.img_dict[animation_name]
+        current_animation.play()
+        self.current_animation = current_animation
 
     def set_controls(self, controls):
         self.controls = controls  # the controls provided in the argument work
+
+    def control(self, pressed, time):
+        controls = self.controls
+        if pressed[self.controls['left']]:
+          #  self.state[1] = 'left'
+            self.speed.x -= time * self.horspeed
+
+        if pressed[self.controls['right']]:
+          #  self.state[1] = 'right'
+            self.speed.x += time * self.horspeed
+
+        if pressed[self.controls['up']]:
+            #   if self.rect.bottom == self.baseline:
+            self.speed.y = self.jumpheight
+          #      self.state[0] = 'up'
+        if pressed[self.controls['down']]:
+            self.speed.x = 0.0
+          #  if pressed[pygame.K_SPACE]:
+          #      self.space = 1
+
+
+
+    def update(self):
+        self.clear()
+        if self.current_animation == None:
+            self.image.blit(self.img_dict['idle'][0], (0,0))
+        else:
+            self.current_animation.blit(self.image, (0,0))
 
 
 
@@ -392,7 +431,8 @@ class PlayerEntities(GravityEntities):
 if __name__ == "__main__":
     # Open window
     resolution = (1008,1008)
-    bg_color = (94,129,162)
+    bg_color = (0,35,69)
+    colorkey = (94,129,162)
     screen = pygame.display.set_mode(resolution)
     pygame.display.set_caption('Game')
     bg_image = pygame.Surface(resolution)
@@ -412,8 +452,8 @@ if __name__ == "__main__":
     gap = 2
     border = 1
     image_rows = {
-            'p1_run_right': ((1,0), 3),  # rect, image count
-            'p2_run_right': ((1,3), 3)
+            'p1_run_right': ((2,0), 2),  # rect, image count
+            'p2_run_right': ((2,3), 2)
     }
     images = {
             'p1_idle': [(0,0)],# list of tuples
@@ -431,12 +471,31 @@ if __name__ == "__main__":
             'idle': 'p2_idle'
             }
     }
+
+    # controls dicts
+    controls = [{
+            'left': pygame.K_LEFT,
+            'right': pygame.K_RIGHT,
+            'up': pygame.K_UP,
+            'down': pygame.K_DOWN
+            },
+            {
+            'left': pygame.K_a,
+            'right': pygame.K_d,
+            'up': pygame.K_w,
+            'down': pygame.K_s
+            }
+            ]
+
     # Loading images from spritesheet
-    ip = vi_.ImagePicker(filename, tile_size, gap, border, colorkey=True)
+    ip = vi_.ImagePicker(filename, tile_size, gap, border, colorkey=colorkey)
     ip.get_strips(image_rows)
     ip.get_images(images)
     ip.flip('p1_run_right','p1_run_left')
     ip.flip('p2_run_right','p2_run_left')
+    # zooming before animating
+    ip.zoom_dict(2)
+
     # animations
     delay = 0.2
     animations_list = [
@@ -444,7 +503,6 @@ if __name__ == "__main__":
             ]
     for animation in animations_list:
         ip.animate(animation, delay)
-    ip.zoom_dict(2)
     new_images = ip.modified
 
     li = vi_.LevelImages(new_images, lvl_img, *ip.return_zoom_param())
@@ -460,23 +518,34 @@ if __name__ == "__main__":
     # SpritesGroup setup
     all_sprites = GameSpritesGroup()
     player_dict = world.get_players()
+    i = 0
     for key in player_dict:
-        all_sprites.add_sprite(player_dict[key])
+        player=player_dict[key]
+        player.set_mass(4)
+        player.set_controls(controls[i])
+        player.start_animation('run_left')
+        all_sprites.add_sprite(player)
+        i+=1
 
 
     # Game cycle
     while True:
-        # handling events
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit()
-
         # updating game
         time_passed = clock.tick(30)
         time_passed_seconds = time_passed / 1000.0
 
+        # handling events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+        pressed = pygame.key.get_pressed()
+        for key in player_dict:
+            player=player_dict[key]
+            player.control(pressed, time_passed_seconds)
+            player.fall(time_passed_seconds)
 
         # drawing all sprites
+        all_sprites.clear(screen, bg_image)
         all_sprites.update()
         changed_rects = all_sprites.draw(screen)
-        pygame.display.update(changed_rects)
+        pygame.display.update()

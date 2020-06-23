@@ -24,7 +24,7 @@ class Vector2d:
         if not isinstance(vec, Vector2d):
             raise TypeError("Argument is a {} object, not a Vector2d object".format(type(vec)))
 
-        return Vector2d((self.x, self.y))
+        return Vector2d((self.x+vec.x, self.y+vec.y))
 
     def __mul__(self, num):
 
@@ -32,7 +32,7 @@ class Vector2d:
         if not isinstance(num, float):
             raise TypeError("Argument is a {} object, not a float object".format(type(num)))
 
-        return Vector2d((self.x, self.y))
+        return Vector2d((self.x*num, self.y*num))
 
     def __sub__(self, vec):
 
@@ -40,7 +40,7 @@ class Vector2d:
         if not isinstance(vec, Vector2d):
             raise TypeError("Argument is a {} object, not a Vector2d object".format(type(vec)))
 
-        return Vector2d((self.x, self.y))
+        return Vector2d((self.x-vec.x, self.y-vec.y))
 
     def __matmul__(self, vec):
 
@@ -57,7 +57,7 @@ class Vector2d:
         if not isinstance(num, float):
             raise TypeError("Argument is a {} object, not a float object".format(type(num)))
 
-        return Vector2d((self.x, self.y))
+        return self*num
 
     # in place operators
     def __iadd__(self, vec):

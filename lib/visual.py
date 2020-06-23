@@ -21,7 +21,7 @@ class ImagePicker:
         self.colorkey = colorkey
         self.images = {}
         # Modified dict
-        self.modified = None
+        self.modified = {}
         self.animations = {}
         self.t_size = tile_size
         self.t_modified = None
@@ -75,11 +75,11 @@ class ImagePicker:
         """
         Make a pyganim object from a name and properties
         """
-        surfaces = self.images[images_name]
+        surfaces = self.modified[images_name]
         frames = []
         for surface in surfaces:
             frames.append((surface, delay))
-        self.animations[images_name] = pyganim_.PygAnimation(frames, loop)
+        self.modified[images_name] = pyganim_.PygAnimation(frames, loop)
 
     def return_images(self, *images_names, zoomed=True):
         """

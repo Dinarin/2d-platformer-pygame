@@ -48,9 +48,7 @@ class SpriteSheet(object):
         image = pygame.Surface(rect.size).convert()
         image.blit(self.sheet, (0, 0), rect)
         if colorkey is not None:
-            if colorkey is -1:
-                colorkey = image.get_at((0,0))
-            image.set_colorkey(colorkey, pygame.RLEACCEL)
+            image.set_colorkey(colorkey)
         return image
     # Load a whole bunch of images and return them as a list from a list of tuples [(x,y), (x,y)]
     def images_at(self, xys, colorkey = None):
