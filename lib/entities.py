@@ -172,8 +172,7 @@ class GameBorders(GameObjects):
         Objects' coordinates are initially (0,0)
         """
         super().__init__(rect)
-        self.rects = {}
-        self.rect = pygame.Rect(rect)
+        self.rects_from_sides(out=True)
 
 class GameTiles(GameObjects):
     def __init__(self):
@@ -233,62 +232,40 @@ class FreeMovingEntities(GameEntities):
 
         # attributes
         phys_dict = {
-                'g': 300.0,
-                'k': 50.0
+                'g': 0.5,
                 }
         self.pressing = {
                 'right': False,
                 'left':False
                 }
-        g = phys_dict['g']
-        k = phys_dict['k']
+        self.g = phys_dict['g']
         self.speed = v_.Vector2d((0,0))
-        self.g_speed = v_.Vector2d((0,g))
-        self.k = v_.Vector2d((k,0))
-        self.falling = True
+        self.on_ground = False
         self.rects_from_sides()
 
         # Attributes methods
-    def get_mass(self):
-        return self.mass
 
-    def set_mass(self, new_mass):
-        self.mass = new_mass
-
-    def set_speed(self, new_speed):
-        self.speed = new_speed
-
-    def move(self, time):
-        collision = self.check_collisions_with_borders()
-        if collision is not None:
-            if (collision == 1) or (collision == 2):
-                self.pressing[collision] = False
-            if (collision == 4):
-                if (self.falling == True) and (self.speed.y > 0):
-                    self.falling = False
-        if self.falling:
-            self.rect.centery += self.g_speed.y * time
-        if self.speed.x is not 0:
-            if self.speed.x > 0:
-                self.speed.x -= self.k.x*time
-            if self.speed.x < 0:
-                self.speed.x += self.k.x*time
-        self.rect.centerx += self.speed.x * time
-        # update rects:
-        self.rects['left'].center = self.rect.midleft
-        self.rects['right'].center = self.rect.midright
+    def move(self):
+        if not self.on_ground:
+            self.speed.y += self.g
+        self.on_ground = False
+        self.rect.y += self.speed.y
         self.rects['top'].center = self.rect.midtop
         self.rects['bottom'].center = self.rect.midbottom
-        print("Edited rects".format(self.rects))
-        print("Is falling? - {}".format(self.falling))
 
+        self.check_y_collisions()
+
+        self.rect.x += self.speed.x
+        self.rects['left'].center = self.rect.midleft
+        self.rects['right'].center = self.rect.midright
+
+        self.check_x_collisions()
 
     def set_colliding_list(self, border, *sprites_groups):
         """
         checks collisions with sprites in sprites groups
         """
         r_list = []
-        b_list = []  # border list
         for s_group in sprites_groups:
             sprites = s_group.sprites()
             if self in sprites:  # checking and removing self from list
@@ -296,69 +273,36 @@ class FreeMovingEntities(GameEntities):
             for sprite in sprites:
                 rect = sprite.rect
                 r_list.append(rect)
+        r_list.extend(border.rects.values())
         self.r_list = r_list
-        b_list.append(border)
-        self.b_list = b_list
 
-    def check_collisions_with_objects(self):
+    def check_x_collisions(self):
         collided = 0
         r_list = self.r_list
         # colliding with rects in list
-        col_i = self.rect.collidelist(r_list)
-        rect = r_list[col_i]
-        if self.rects['left'].colliderect(rect):
-            if self.rect.left < rect.right:
+        for rect in r_list:
+            if self.rect.colliderect(rect):
                 if self.speed.x < 0:
-                    self.speed.x = -self.speed.x
-                self.rect.left = rect.right
-                collided = 1
-        elif self.rects['right'].colliderect(rect):
-            if self.rect.right >= rect.left:
-                self.rect.right = rect.left+1
-                collided = 2
-        if self.rects['bottom'].colliderect(rect):
-            if self.rect.bottom > rect.top:
-                if self.speed.y > 0:
-                    self.speed.y = 0
-                self.rect.bottom = rect.top
-                collided = 4
+                    self.rect.left = rect.right
+                    collided = 1
+                if self.speed.x > 0:
+                    self.rect.right = rect.left
+                    collided = 2
 
-        elif self.rects['top'].colliderect(rect):
-            if self.rect.top < rect.bottom:
-                if self.speed.y < 0:
-                    self.speed.y = -self.speed.y
-                self.rect.top = rect.bottom
-                collided = 3
-                print("collided {}".format(collided))
-        return collided
-
-    def check_collisions_with_borders(self):
+    def check_y_collisions(self):
         collided = 0
-        b_list = self.b_list
-        rect = b_list[0]
-        print(b_list)
+        r_list = self.r_list
         # colliding with rects in list
-        if self.rect.left <= rect.left:
-            if self.speed.x < 0:
-                self.speed.x = -self.speed.x
-            self.rect.left += 15
-            collided = 1
-        if self.rect.right >= rect.right:
-            if self.speed.x < 0:
-                self.speed.x = -self.speed.x
-            self.rect.right -= 15
-            collided = 2
-        if self.rect.bottom >= rect.bottom:
-            if self.speed.y > 0:
-                self.speed.y = 0
-            self.rect.bottom -= 15
-            collided = 4
-        if self.rect.top <= rect.top:
-            if self.speed.y < 0:
-                self.speed.y = -self.speed.y
-            self.rect.top += 15
-            collided = 3
-            print("collided {}".format(collided))
+        for rect in r_list:
+            if self.rect.colliderect(rect):
+                if self.speed.y > 0:
+                    self.rect.bottom = rect.top
+                    self.on_ground = True
+                    self.speed.y = 0
+                    collided = 4
+                if self.speed.y < 0:
+                    self.rect.top = rect.bottom
+                    collided = 3
         return collided
 
 
@@ -370,9 +314,8 @@ class PlayerEntities(FreeMovingEntities):
         # constructor
         super().__init__(rect, img_dict)
         phys_dict = {
-                'horspeed': 5.0,
-                'jumpheight': -100,
-                'movhor': 0.0
+                'horspeed': 7,
+                'jumpheight': 10,
                 }
         self.states_dict = {
                 'direction': 'left',
@@ -383,9 +326,9 @@ class PlayerEntities(FreeMovingEntities):
                 ('right','ground'): 'run_right'
              }
         self.last_state = None
-        self.horspeed = 200.0
+        self.horspeed = phys_dict['horspeed']
         # horizontal speed
-        self.jumpheight = -100  # jumpheight
+        self.jumpheight = phys_dict['jumpheight']  # jumpheight
         self.img_dict = img_dict
         self.current_animation = None
 
@@ -397,25 +340,27 @@ class PlayerEntities(FreeMovingEntities):
     def set_controls(self, controls):
         self.controls = controls  # the controls provided in the argument work
 
-    def control(self, pressed, time):
+    def control(self, pressed):
         controls = self.controls
         if pressed[self.controls['left']]:
             self.states_dict['direction'] = 'left'
-            self.speed.x -= time * self.horspeed
+            self.speed.x = - self.horspeed
 
         if pressed[self.controls['right']]:
             self.states_dict['direction'] = 'right'
-            self.speed.x += time * self.horspeed
+            self.speed.x = self.horspeed
 
         if pressed[self.controls['up']]:
-            if not self.falling:
-                self.speed.y = self.jumpheight
+            if self.on_ground:
                 self.states_dict['direction'] = 'center'
-                self.falling = True
-        if pressed[self.controls['down']]:
-            self.speed.x = 0.0
+                self.speed.y = -self.jumpheight
 
-    def update(self):
+        if pressed[self.controls['down']]:
+            self.speed.x = 0
+
+    def update(self, pressed):
+        self.control(pressed)
+        self.move()
 
         # clean image
         self.clear()
@@ -478,7 +423,7 @@ if __name__ == "__main__":
     clock = pygame.time.Clock()
 
     # images_dict have rects from imagefile and the keys are added as the spritegroup
-    img_path = '../images/spritesheet.png'
+    img_path = '../images/small_spritesheet_by_kenney_nl.png'
     dirname = os.path.dirname(__file__)
     filename = os.path.join(dirname, img_path)
 
@@ -487,6 +432,27 @@ if __name__ == "__main__":
     tile_size = (21,21)
     gap = 2
     border = 1
+    image_rows = {
+            'p1_run_right': ((2,0), 2),  # rect, image count
+            'p2_run_right': ((2,3), 2)
+    }
+    images = {
+         'p1_idle': [(20,0)],# list of tuples
+         'p2_idle': [(20,3)]
+        }
+    lvl_img = {
+        'player1': {
+            'run_left': 'p1_run_left',
+            'run_right': 'p1_run_right',
+            'idle': 'p1_idle'
+            },
+        'player2': {
+            'run_left': 'p2_run_left',
+            'run_right': 'p2_run_right',
+            'idle': 'p2_idle'
+            }
+    }
+
     # controls dicts
     controls = [{
             'left': pygame.K_LEFT,
@@ -504,12 +470,6 @@ if __name__ == "__main__":
 
     # Loading images from spritesheet
     ip = vi_.ImagePicker(filename, tile_size, gap, border, colorkey=colorkey)
-    image_rows = dicts_.get_dicts('rows')
-    print(image_rows)
-    images = dicts_.get_dicts('img')
-    print(images)
-    lvl_img = dicts_.get_dicts('lvl')
-
     ip.get_strips(image_rows)
     ip.get_images(images)
     ip.flip('p1_run_right','p1_run_left')
@@ -546,9 +506,8 @@ if __name__ == "__main__":
     i = 0
     for key in player_dict:
         player=player_dict[key]
-        player.set_mass(4)
         player.set_controls(controls[i])
-        player.set_colliding_list(game_border.rect)
+        player.set_colliding_list(game_border, player_sprites)
         player_sprites.add_sprite(player)
         i+=1
 
@@ -558,7 +517,6 @@ if __name__ == "__main__":
     while True:
         # updating game
         time_passed = clock.tick(30)
-        time_passed_seconds = time_passed / 1000.0
 
         # handling events
         for event in pygame.event.get():
@@ -567,12 +525,9 @@ if __name__ == "__main__":
         pressed = pygame.key.get_pressed()
         for key in player_dict:
             player=player_dict[key]
-            player.control(pressed, time_passed_seconds)
-            player.move(time_passed_seconds)
 
         # drawing all sprites
         player_sprites.clear(screen, bg_image)
-        player_sprites.update()
-        print("Player1:{}".format(player_dict[0].rect))
+        player_sprites.update(pressed)
         changed_rects = player_sprites.draw(screen)
         pygame.display.update()
