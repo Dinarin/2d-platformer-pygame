@@ -58,7 +58,6 @@ class LevelData:
                             #and instances are in a list
                     if tile == code:
                         obj_map[self.map_symb[code]].append((x,y))
-                        print('Coords={},{}'.format(x,y))
                 x += 1
             x = 0
             y += 1

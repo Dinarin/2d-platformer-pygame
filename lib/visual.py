@@ -235,7 +235,6 @@ if __name__ == "__main__":
     sp.flip('p1_run_right','p1_run_left')
     sp.zoom(2)
     ls = LevelImages(sp.images, lvl_dict)
-    print(ls.obj_dict)
     new_images = sp.modified
     # Game cycle
     while True:

@@ -32,8 +32,7 @@ class SpriteSheet(object):
             self.t_height = tile_size[1]
             self.gap_size = gap_size
         except pygame.error as message:
-            print('Unable to load spritesheet image:', filename)
-            raise SystemExit(message)
+            raise SystemExit('Unable to load spritesheet image:{}'.format(filename), message)
     # Load a specific image from column x row y assuming first image begins at (0,0) and numeration of rows and columns begins at 0
     def image_at(self, xy, colorkey = None):
         """
@@ -44,7 +43,6 @@ class SpriteSheet(object):
         y_px = (self.t_width + self.gap_size) * xy[1]
         rectangle = (x_px, y_px, self.t_width, self.t_height)
         rect = pygame.Rect(rectangle)
-        print(rect)
         image = pygame.Surface(rect.size).convert()
         image.blit(self.sheet, (0, 0), rect)
         if colorkey is not None:
@@ -57,7 +55,6 @@ class SpriteSheet(object):
         xy1 = (x, y)...
         Loads images from column x row y
         """
-        print(xys)
         return [self.image_at(xy, colorkey) for xy in xys]
     # Load a whole strip of images
     def load_strip(self, xy, image_count, colorkey = None):
@@ -98,8 +95,6 @@ if __name__ == "__main__":
     sp = SpriteSheet(filename, tile, gap, border=border)
     player1 = sp.load_strip(*sprite_rows['player1'])
     player2 = sp.load_strip(*sprite_rows['player2'])
-    print(player1)
-    print(player2)
     # Game cycle
     while True:
         # handling events

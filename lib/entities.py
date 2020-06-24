@@ -161,7 +161,6 @@ class GameObjects(pygame.sprite.DirtySprite):
         self.rects['left'] = pygame.Rect(left_rect)
         self.rects['bottom'] = pygame.Rect(bottom_rect)
         self.rects['right'] = pygame.Rect(right_rect)
-        print(self.rects)
 
 class GameBorders(GameObjects):
     def __init__(self, rect):
