@@ -7,7 +7,7 @@ from lib import spritesheetgaps as sp_
 from lib import pyganim as anim_
 from lib import levels as l_
 from lib import entities as e_
-#from levels import tilesets as ts_
+from levels import tilesets as ts_
 
 
 def start_game():
@@ -25,7 +25,7 @@ def start_game():
     clock = pygame.time.Clock()
 
     # images_dict have rects from imagefile and the keys are added as the spritegroup
-    img_path = './images/small_spritesheet_by_kenney_nl.png'
+    img_path = './images/spritesheet_by_kenney_nl.png'
     dirname = os.path.dirname(__file__)
     filename = os.path.join(dirname, img_path)
 
@@ -33,7 +33,7 @@ def start_game():
     # Get images file and put name on images
     tile_size = (21,21)
     gap = 2
-    border = 1
+    border = 2
     image_rows = {
             'p1_run_right': ((2,0), 2),  # rect, image count
             'p2_run_right': ((2,3), 2)
@@ -70,6 +70,9 @@ def start_game():
             }
             ]
 
+    images = ts_.get_dicts('img')
+    image_rows = ts_.get_dicts('rows')
+    lvl_img = ts_.get_dicts('level')
     # Loading images from spritesheet
     ip = vi_.ImagePicker(filename, tile_size, gap, border, colorkey=colorkey)
     ip.get_strips(image_rows)
@@ -93,27 +96,43 @@ def start_game():
     # Building level 0
     dim = (24,24)
     Level0 = l_.LevelData(dim, li)
-    Level0.load_map(0)
+    Level0.load_map(1)
     Level0.parse_map()
     world = e_.World(Level0)
     world.add_players(['player1','player2'])
-#    world.add_tiles(GameTiles, 'grass')
+    world.add_entities(e_.StaticBonus, 'bonus')
+    world.add_tiles('floating_tile', 'grass')
+    world.add_tiles('ground_tile', 'grass')
 
     # Adding objects not present in world:
     game_border = e_.GameBorders((0,0,*resolution))
 
     # SpritesGroup setup
     player_sprites = e_.GameSpritesGroup()
+    bonus_sprites = e_.GameSpritesGroup()
+    tiles_sprites = e_.GameSpritesGroup()
+
     player_dict = world.get_players()
+    bonuses_dict = world.get_entities()
+    tiles_list = world.get_tiles()
+#    print(bonuses_dict)
+#    print(player_dict)
+#    print(tiles_list)
     i = 0
-    for key in player_dict:
-        player=player_dict[key]
+    for e_id in bonuses_dict:
+        bonus = bonuses_dict[e_id]
+        bonus_sprites.add_sprite(bonus)
+    for tile in tiles_list:
+        tiles_sprites.add_sprite(tile)
+    for p_id in player_dict:
+        player=player_dict[p_id]
         player.set_controls(controls[i])
-        player.set_colliding_list(game_border, player_sprites)
+        player.set_colliding_list(game_border, tiles_sprites, player_sprites)
         player_sprites.add_sprite(player)
         i+=1
 
-    all_sprites = e_.GameSpritesGroup(player_sprites.sprites())
+    all_sprites = e_.GameSpritesGroup(*player_sprites.sprites(), *tiles_sprites.sprites(), *bonus_sprites.sprites())
+    non_player_sprites = e_.GameSpritesGroup(*tiles_sprites.sprites(), *bonus_sprites.sprites())
 
     # Game cycle
     while True:
@@ -121,18 +140,21 @@ def start_game():
         time_passed = clock.tick(30)
 
         # handling events
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
                 sys.exit()
-        pressed = pygame.key.get_pressed()
-        # for debugging
-#        for key in player_dict:
-#            player=player_dict[key]
+            for p_id in player_dict:
+                player = player_dict[p_id]
+                player.get_keys(e)
+
+        for key in player_dict:
+            player=player_dict[key]
+            player.collect(bonus_sprites)
+#            print('player {} score {}, place {}'.format(key, player.score, (player.rect.x, player.rect.y)))
 
         # drawing all sprites
-        player_sprites.clear(screen, bg_image)
-        player_sprites.update(pressed)
-        changed_rects = player_sprites.draw(screen)
+        all_sprites.clear(screen, bg_image)
+        player_sprites.update()
+        changed_rects = all_sprites.draw(screen, bg_image)
         pygame.display.update()
-
 start_game()

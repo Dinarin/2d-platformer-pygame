@@ -25,8 +25,8 @@ class LevelData:
     # map encoding
     map_symb = {
             'p': 'player',
-            'd': 'grass',
-            'f': 'floating grass',
+            'd': 'ground_tile',
+            'f': 'floating_tile',
             'b': 'bonus'
             }
     def __init__(self, dim, lvl_img):
@@ -89,6 +89,7 @@ class LevelData:
                 for code in self.map_symb:  # comparing to dictionary
                     # there will be a dictionary where classes are keys\
                             #and instances are in a list
+                    #print("coords {}".format((x,y)))
                     if tile == code:
                         obj_map[self.map_symb[code]].append((x,y))
                 x += 1

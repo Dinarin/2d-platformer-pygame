@@ -1,13 +1,14 @@
 def get_dicts(name):
     image_rows = {
-            'p1_run_right': ((29,0), 2),  # rect, image count
-            'p2_run_right': ((29,4), 2)
+            'p1_run_right': ((28,0), 2),  # rect, image count
+            'p2_run_right': ((28,3), 2)
     }
     images = {
-         'p1_idle': [(20,0)],# list of tuples
-         'p2_idle': [(20,3)],
-         'grass_tile': [(4,5)],
-         'star_img': [(17,4)]
+         'p1_idle': [(19,0)],# list of tuples
+         'p2_idle': [(19,3)],
+         'grass_tile': [(3,4)],
+         'floating_grass': [(1,4)],
+         'star_img': [(16,3)]
         }
     lvl_img = {
         'player1': {
@@ -20,13 +21,16 @@ def get_dicts(name):
             'run_right': 'p2_run_right',
             'idle': 'p2_idle'
             },
-        'grass': {
-            'ground_tile': 'grass_tile'
+        'ground_tile': {
+            'grass': 'grass_tile'
+            },
+        'floating_tile': {
+            'grass': 'floating_grass'
             },
         'bonus': {
             'star': 'star_img'
-    }
         }
+}
 
     if name == 'img':
         return images

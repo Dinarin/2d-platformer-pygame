@@ -28,7 +28,6 @@ class World:
         self.entities = {}
         self.tiles = []
         self.entity_id = 0
-        self.tile_id = 0
         self.players = {}
 
         # Storing level data
@@ -50,17 +49,12 @@ class World:
         return (x_px, y_px, t_width, t_height)
 
     # Managing entities
-    def add_tiles(self, tile_type, tile_color):
-        """Adds tiles to the game
-        """
-        xys = self.obj_dict[tile_type]
-        img_dict = self.imgs.get_obj(tile_type)
-        # Stores the tile then advances the current id
-
+    def add_tiles(self, TileClass, tile_name):
+        xys = self.obj_dict[tile_name]
+        img_dict = self.imgs.get_obj(tile_name)
         for xy in xys:
             rect = self.xy_to_rect(xy)
-#            print("tile", rect, img_dict)
-            self.tiles.append(GameTiles(rect, img_dict, tile_color))
+            self.tiles.append(TileClass(rect, img_dict))
 
 
     def add_players(self, player_images_list):
@@ -80,6 +74,7 @@ class World:
         # Stores the entity then advances the current id
         for xy in xys:
             rect = self.xy_to_rect(xy)
+            print(rect, img_dict)
             self.entities[self.entity_id] = EntityClass(rect, img_dict, self.entity_id)
             self.entity_id += 1
 
@@ -94,6 +89,18 @@ class World:
         return self.players
 
 
+class GameSpritesGroup(pygame.sprite.RenderUpdates):
+
+    def __init__(self, *sprites):
+        # constructor
+        super().__init__(*sprites)
+
+    def update_objects(self):
+        self.update(args)
+
+    #?
+    def add_sprite(self, sprite):
+        self.add(sprite)
 
 
 class GameObjects(pygame.sprite.DirtySprite):
@@ -107,8 +114,8 @@ class GameObjects(pygame.sprite.DirtySprite):
         super().__init__()
 
         #DirtySprite attributes
-        self.dirty = 2
-        self.visible = 1
+        self.dirty = False
+        self.visible = True
 
         # Setting game object attributes
         #self._quality = object_dict['quality']
@@ -157,19 +164,6 @@ class GameObjects(pygame.sprite.DirtySprite):
         self.rects['bottom'] = pygame.Rect(bottom_rect)
         self.rects['right'] = pygame.Rect(right_rect)
 
-class GameSpritesGroup(pygame.sprite.LayeredDirty):
-
-    def __init__(self, *sprites):
-        # constructor
-        super().__init__(*sprites)
-
-    def update_objects(self):
-        self.update(args)
-
-    #?
-    def add_sprite(self, sprite):
-        self.add(sprite)
-
 #class GameText(GameObject):
 #    """Class for scoreboards and level data
 #    """
@@ -191,10 +185,8 @@ class GameBorders(GameObjects):
         self.rects_from_sides(out=True)
 
 class GameTiles(GameObjects):
-    def __init__(self, rect, img_dict, tile_name, t_id=None):
-        super().__init__(rect, img_dict)
-        self.t_id = t_id
-        self.image = img_dict[tile_name][0]
+    def __init__(self):
+        pass
 
 class GameEntities(GameObjects):
     def __init__(self, rect, img_dict, e_id=None):
@@ -207,6 +199,9 @@ class GameEntities(GameObjects):
         """
         super().__init__(rect, img_dict)
 
+        #DirtySprite attributes
+        self.dirty = False
+        self.visible = True
         self.id = e_id
 
         # Setting game object attributes
@@ -278,8 +273,6 @@ class FreeMovingEntities(GameEntities):
         self.rects['right'].center = self.rect.midright
 
         self.check_x_collisions()
-        if self.speed.x == 0:
-            self.states['direction'] = 'none'
 
     def set_colliding_list(self, border, *sprites_groups):
         """
@@ -337,7 +330,7 @@ class PlayerEntities(FreeMovingEntities):
                 'horspeed': 7,
                 'jumpheight': 10,
                 }
-        self.states = {
+        self.states_dict = {
                 'direction': 'left',
                 'vertical': 'ground',
                 }
@@ -345,20 +338,12 @@ class PlayerEntities(FreeMovingEntities):
                 ('left', 'ground'): 'run_left',
                 ('right','ground'): 'run_right'
              }
-        self.events = {
-            'up': False,
-                #                'down': False,
-                'left': False,
-                'right': False
-                }
-
         self.last_state = None
         self.horspeed = phys_dict['horspeed']
         # horizontal speed
         self.jumpheight = phys_dict['jumpheight']  # jumpheight
         self.img_dict = img_dict
         self.current_animation = None
-        self.score = 0
 
     def start_animation(self, animation_name):
         current_animation = self.img_dict[animation_name]
@@ -368,66 +353,36 @@ class PlayerEntities(FreeMovingEntities):
     def set_controls(self, controls):
         self.controls = controls  # the controls provided in the argument work
 
-    def get_keys(self, e):
-        keys = self.controls
-        if e.type == pygame.KEYDOWN and e.key == keys['up']:
-            self.events['up'] = True
-        if e.type == pygame.KEYDOWN and e.key == keys['left']:
-            self.events['left'] = True
-        if e.type == pygame.KEYDOWN and e.key == keys['right']:
-            self.events['right'] = True
-
-        if e.type == pygame.KEYUP and e.key == keys['up']:
-            self.events['up'] = False
-        if e.type == pygame.KEYUP and e.key == keys['left']:
-            self.events['left'] = False
-        if e.type == pygame.KEYUP and e.key == keys['right']:
-            self.events['right'] = False
-
-    def control(self):
-        """Reads event dictionary and changes attributes.
-
-        """
+    def control(self, pressed):
         controls = self.controls
-        if self.events['left']:
-            self.states['direction'] = 'left'
+        if pressed[self.controls['left']]:
+            self.states_dict['direction'] = 'left'
             self.speed.x = - self.horspeed
 
-        if self.events['right']:
-            self.states['direction'] = 'right'
+        if pressed[self.controls['right']]:
+            self.states_dict['direction'] = 'right'
             self.speed.x = self.horspeed
 
-        if self.events['up']:
+        if pressed[self.controls['up']]:
             if self.on_ground:
-                self.states['direction'] = 'center'
+                self.states_dict['direction'] = 'center'
                 self.speed.y = -self.jumpheight
 
-        if not (self.events['left'] or self.events['right']):
+        if pressed[self.controls['down']]:
             self.speed.x = 0
 
-    def collect(self, sprites_group):
-        """Bonus collection
-        """
-        for sprite in sprites_group.sprites():
-            if sprite.active:
-                if self.rect.collidepoint(sprite.rect.center):
-                    sprite.dirty = 2
-                    sprite.visible = 0
-                    self.score += 100
-                    sprite.active = False
-
-    def update(self):
-        self.control()
+    def update(self, pressed):
+        self.control(pressed)
         self.move()
 
         # clean image
         self.clear()
-        anim_tuple = (self.states['direction'],\
-                self.states['vertical'])
+        anim_tuple = (self.states_dict['direction'],\
+                self.states_dict['vertical'])
         if ((self.last_state is not anim_tuple) and (anim_tuple in self.anim_dict.keys())):
             self.start_animation(self.anim_dict[anim_tuple])
             self.last_state = anim_tuple
-        if (self.current_animation == None) or (self.states['direction'] is 'none'):
+        if self.current_animation == None:
             self.image.blit(self.img_dict['idle'][0], (0,0))
         else:
             self.current_animation.blit(self.image, (0,0))
@@ -444,9 +399,9 @@ class StaticBonus(GameEntities):
             ]
     def __init__(self, rect, img_dict, e_id=None):
         super().__init__(rect, img_dict, e_id)
-        # pick first element from img dict
-        self.image = img_dict[self.bonus_list[0]][0]
-        self.active = True
+
+        self.image = img_dict[self.bonus_list[0]]
+        print(self.image)
 
 #class LandscapeGroup(GameSpritesGroup):
 #
@@ -495,7 +450,7 @@ if __name__ == "__main__":
     # Get images file and put name on images
     tile_size = (21,21)
     gap = 2
-    border = 2
+    border = 1
     image_rows = {
             'p1_run_right': ((2,0), 2),  # rect, image count
             'p2_run_right': ((2,3), 2)
@@ -558,13 +513,12 @@ if __name__ == "__main__":
     # Building level 0
     dim = (24,24)
     Level0 = l_.LevelData(dim, li)
-    Level0.load_map(1)
+    Level0.load_map(0)
     Level0.parse_map()
     world = World(Level0)
     world.add_players(['player1','player2'])
     world.add_entities(StaticBonus, 'bonus')
-    world.add_tiles('floating_tile', 'grass')
-    world.add_tiles('ground_tile', 'grass')
+#    world.add_tiles(GameTiles, 'grass')
 
     # Adding objects not present in world:
     game_border = GameBorders((0,0,*resolution))
@@ -572,52 +526,37 @@ if __name__ == "__main__":
     # SpritesGroup setup
     player_sprites = GameSpritesGroup()
     bonus_sprites = GameSpritesGroup()
-    tiles_sprites = GameSpritesGroup()
-
     player_dict = world.get_players()
     bonuses_dict = world.get_entities()
-    tiles_list = world.get_tiles()
-#    print(bonuses_dict)
-#    print(player_dict)
-#    print(tiles_list)
     i = 0
-    for e_id in bonuses_dict:
-        bonus = bonuses_dict[e_id]
+    for key in bonuses_dict:
+        bonus = bonuses_dict[key]
         bonus_sprites.add_sprite(bonus)
-    for tile in tiles_list:
-        tiles_sprites.add_sprite(tile)
-    for p_id in player_dict:
-        player=player_dict[p_id]
+    for key in player_dict:
+        player=player_dict[key]
         player.set_controls(controls[i])
-        player.set_colliding_list(game_border, tiles_sprites, player_sprites)
+        player.set_colliding_list(game_border, player_sprites)
         player_sprites.add_sprite(player)
         i+=1
 
-    all_sprites = GameSpritesGroup(*player_sprites.sprites(), *tiles_sprites.sprites(), *bonus_sprites.sprites())
-    non_player_sprites = GameSpritesGroup(*tiles_sprites.sprites(), *bonus_sprites.sprites())
+    all_sprites = GameSpritesGroup(player_sprites.sprites(), bonus_sprites.sprites())
 
-    # Events dictionary:
-    
     # Game cycle
     while True:
         # updating game
         time_passed = clock.tick(30)
 
         # handling events
-        for e in pygame.event.get():
-            if e.type == pygame.QUIT:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
                 sys.exit()
-            for p_id in player_dict:
-                player = player_dict[p_id]
-                player.get_keys(e)
-             
+        pressed = pygame.key.get_pressed()
         for key in player_dict:
             player=player_dict[key]
-            player.collect(bonus_sprites)
-#            print('player {} score {}, place {}'.format(key, player.score, (player.rect.x, player.rect.y)))
 
         # drawing all sprites
-        all_sprites.clear(screen, bg_image)
-        player_sprites.update()
-        changed_rects = all_sprites.draw(screen, bg_image)
+        player_sprites.clear(screen, bg_image)
+        player_sprites.update(pressed)
+        bonus_sprites.update()
+        changed_rects = all_sprites.draw(screen)
         pygame.display.update()

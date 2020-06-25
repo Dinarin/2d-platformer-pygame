@@ -165,6 +165,9 @@ class LevelImages:
         self.obj_dict = lvl_obj
 
     def get_obj(self, obj):
+        """Returns dictionary with surfaces of the object
+
+        """
         return self.obj_dict[obj]
 
 
