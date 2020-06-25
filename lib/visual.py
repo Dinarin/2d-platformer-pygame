@@ -6,15 +6,13 @@ from lib import vector as v_
 from lib import spritesheetgaps as sp
 from lib import pyganim as pyganim_
 
-# Events
-# event1 = Event(type, **attributes)
 
-
-
-#sprite_rects = {[]}
 class ImagePicker:
-    """
-    tile_size - tuple (width, height)
+    """Finds images in spritesheet
+
+        Args:
+            tile_size (tuple): dimensions of a tile
+                (width, height)
     """
     def __init__(self, imgfile, tile_size, gap_size, border=None, colorkey=None):
         self.spritesheet = sp.SpriteSheet(imgfile, tile_size, gap_size, border=border)
@@ -135,19 +133,33 @@ class ImagePicker:
 
 
 class LevelImages:
-    """
-    img_dict is a dictionary received from ImagePicker, that assigns lists of surfaces or single pyganim objects to a unique name
-    lvl_dict is a dictionary that assigns a unique name from img_dict to a game object name
-    zoom is passed from ImagePicker
-    self.obj_dict is a dictionary that assigns lists of surfaces or pyganim objects to a game object name
+    """Stores surfaces of a level
+    
+        Args:
+            img_dict (dict): is a dictionary
+                received from ImagePicker instance,
+                that assigns lists of surfaces or
+                single pyganim objects to a
+                unique string
+            lvl_dict (dict): is a dictionary that
+                assigns a unique name from img_dict
+                to a game object name
+            zoom (int): is passed from ImagePicker
+
+        Attributes:
+            obj_dict is a dictionary that assigns lists of surfaces or pyganim objects to a game object name
     """
     def __init__(self, img_dict, lvl_dict, tile_size, zoom=None):
         self.zoom = zoom
         self.tile_size = tile_size
         lvl_obj = {}
         for obj in lvl_dict:
+            # creating empty dictionary for every object
             lvl_obj[obj] = {}
+
             for state in lvl_dict[obj]:
+                # filling object dictionary with
+                # corresponding surfaces
                 img_name = lvl_dict[obj][state]
                 lvl_obj[obj][state] = img_dict[img_name]
         self.obj_dict = lvl_obj

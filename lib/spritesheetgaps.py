@@ -1,4 +1,4 @@
-# Source: https://www.pygame.org/wiki/Spritesheet adapted for python3
+# Source: https://www.pygame.org/wiki/Spritesheet adapted for python3 and fixed tile dimensions
 # This class handles sprite sheets
 # This was taken from www.scriptefun.com/transcript-2-using
 # sprite-sheets-and-drawing-the-background
@@ -9,12 +9,29 @@
 import pygame
 
 class SpriteSheet(object):
+    """Class for managing spritesheets.
+
+    Args:
+        filename (str): path to the spritesheet file.
+        tile_size (tuple): dimensions of a tile as
+            (width, height).
+        gap_size (int): gap between individual
+            sprites in pixels.
+        border (int): spritesheet margin in pixels,
+            a frame without images.
+
+    Attributes:
+        sheet (:obj:) pygame.Surface: loaded
+            spritesheet image
+        tile_size (tuple): dimensions of a tile as
+            (width, height)
+        t_width (int): tile width in pixels
+        t_height (int): tile height in pixels
+        gap_size (int): gap between individual sprites
+            in pixels
+    """
+
     def __init__(self, filename, tile_size, gap_size, border=None):
-        """
-        tile_size - tuple (width, height)
-        gap_size - gap in pixels of type int
-        border - spritesheet's border in pixels
-        """
         try:
             spritesheet = pygame.image.load(filename).convert()
             if border is not None:
@@ -35,7 +52,7 @@ class SpriteSheet(object):
             raise SystemExit('Unable to load spritesheet image:{}'.format(filename), message)
     # Load a specific image from column x row y assuming first image begins at (0,0) and numeration of rows and columns begins at 0
     def image_at(self, xy, colorkey = None):
-        """
+        """Get image from column x, row y.
         xy = (x, y)
         Loads image from column x row y
         """
@@ -50,7 +67,8 @@ class SpriteSheet(object):
         return image
     # Load a whole bunch of images and return them as a list from a list of tuples [(x,y), (x,y)]
     def images_at(self, xys, colorkey = None):
-        """
+        """Gets images from a list of columns and rows.
+
         xys = [xy1, xy2...]
         xy1 = (x, y)...
         Loads images from column x row y
@@ -58,8 +76,10 @@ class SpriteSheet(object):
         return [self.image_at(xy, colorkey) for xy in xys]
     # Load a whole strip of images
     def load_strip(self, xy, image_count, colorkey = None):
-        """
-        Loads strips from a line
+        """Gets a strip of images.
+
+            Args:
+                xy
         """
         xys = [(xy[0]+x, xy[1]) for x in range(image_count)]
         return self.images_at(xys, colorkey)

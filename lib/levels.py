@@ -5,6 +5,22 @@ from lib import visual as vi_
 class LevelData:
     """
     Stores level data
+    dim (tuple): m
+
+        Attributes:
+            map_symb (dict): dictionary that
+                maps txt symbols to object names
+            lvl_map (list of str): stored content of
+                the map file without the first line
+            dim (tuple): dimensions of one tile
+            obj_map (dict): dictionary that maps
+                object names to xy coordinates on
+                the map
+            lvl_img (dict): dictionary that maps
+                object names to surfaces of sprites
+            symb (str): string with all symbols of
+                the map
+        
     """
     # map encoding
     map_symb = {
@@ -19,6 +35,19 @@ class LevelData:
         self.lvl_img = lvl_img
 
     def load_map(self, lvl_num):
+        """Loads a map from fixed source.
+        Makes checks if the input is valid.
+
+            Args:
+                lvl_num (int): level number, can be
+                    positive integers or zero
+
+            Raises:
+                ValueError
+                Exception
+
+        """
+
         # Find path
         maps_path = '../levels/level'
         lvl_path = maps_path + str(lvl_num)
@@ -43,8 +72,12 @@ class LevelData:
             raise Exception("Number of lines is {}, bigger than {} in file {} ".format(len(self.lvl_map), height, filename))
 
     def parse_map(self):
-        """
-        Method that extracts coordinates from file
+        """Extracts coordinates from stored map.
+            Reads map contents from lvl_map
+                attribute, creates an obj_map
+                dictionary. Uses the symb attribute
+                to create keys in obj_map dictionary
+                
         """
         obj_map = {}
         for char in self.symb:
@@ -64,8 +97,13 @@ class LevelData:
         self.obj_map = obj_map
 
     def set_lvl_images(self, lvl_img):
-        """
-        Reads a dictionary of lvl images
+        """Changes level tileset.
+            Reads a lvl_img dictionary and stores
+                it in lvl_img attribute
+
+            Args:
+            lvl_img (dict): dictionary that maps
+                object names to surfaces of sprites
         """
         self.lvl_img = lvl_img
 

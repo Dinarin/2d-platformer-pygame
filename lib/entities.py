@@ -11,8 +11,8 @@ from levels import levels as dicts_
 # Events
 # event1 = Event(type, **attributes)
 class World:
-    """
-    Adds entities according to level data
+    """Adds entities according to level data.
+
     """
 
     def __init__(self, level_data):
@@ -67,6 +67,8 @@ class World:
             i += 1
 
     def add_entities(self, EntityClass, entity_name):
+        """
+        """
         xy = self.obj_dict[entity_name]
         img_dict = self.imgs.get_obj(entity_name)
         # Stores the entity then advances the current id
@@ -140,28 +142,15 @@ class GameObjects(pygame.sprite.DirtySprite):
     def clear(self):
         self.image.fill(self.colorkey)
 
-    def rects_from_sides(self, offset=2, out=False):
-        d_offset = offset + offset
-        top_l = self.rect.topleft  # topright point
-        top_r = self.rect.topright  # topleft point
-        bt_l = self.rect.bottomleft  # bottomright point
-        width = self.rect.width  # width
-        height = self.rect.height
+class GameText(GameObject):
+    """Class for scoreboards and level data
+    """
+    def __init__(self, fontpath, 
 
-        top_rect = [top_l[0]-offset, top_l[1]-offset, width+d_offset, d_offset]
-        left_rect = [top_l[0]-offset, top_l[1]-offset, d_offset, height+d_offset]
-        bottom_rect = [bt_l[0]-offset, bt_l[1]-offset, width+d_offset, d_offset]
-        right_rect = [top_r[0]-offset, top_r[1]-offset, d_offset, height+d_offset]
-        if out:  # if new rects should be strictly outside the old rect
-            top_rect[1] -= offset
-            left_rect[0] -= offset
-            bottom_rect[1] += offset
-            right_rect[0] += offset
-        self.rects['top'] = pygame.Rect(top_rect)
-        self.rects['left'] = pygame.Rect(left_rect)
-        self.rects['bottom'] = pygame.Rect(bottom_rect)
-        self.rects['right'] = pygame.Rect(right_rect)
+class StaticText(GameText):
 
+class DynamicText
+ 
 class GameBorders(GameObjects):
     def __init__(self, rect):
         """
@@ -201,6 +190,28 @@ class GameEntities(GameObjects):
 
     def update(self):  # drawing method
         pass
+
+   def rects_from_sides(self, offset=2, out=False):
+        d_offset = offset + offset
+        top_l = self.rect.topleft  # topright point
+        top_r = self.rect.topright  # topleft point
+        bt_l = self.rect.bottomleft  # bottomright point
+        width = self.rect.width  # width
+        height = self.rect.height
+
+        top_rect = [top_l[0]-offset, top_l[1]-offset, width+d_offset, d_offset]
+        left_rect = [top_l[0]-offset, top_l[1]-offset, d_offset, height+d_offset]
+        bottom_rect = [bt_l[0]-offset, bt_l[1]-offset, width+d_offset, d_offset]
+        right_rect = [top_r[0]-offset, top_r[1]-offset, d_offset, height+d_offset]
+        if out:  # if new rects should be strictly outside the old rect
+            top_rect[1] -= offset
+            left_rect[0] -= offset
+            bottom_rect[1] += offset
+            right_rect[0] += offset
+        self.rects['top'] = pygame.Rect(top_rect)
+        self.rects['left'] = pygame.Rect(left_rect)
+        self.rects['bottom'] = pygame.Rect(bottom_rect)
+        self.rects['right'] = pygame.Rect(right_rect)
 
     def set_sprite(self):
         pass
