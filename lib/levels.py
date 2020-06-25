@@ -20,7 +20,6 @@ class LevelData:
                 object names to surfaces of sprites
             symb (str): string with all symbols of
                 the map
-        
     """
     # map encoding
     map_symb = {
@@ -77,7 +76,6 @@ class LevelData:
                 attribute, creates an obj_map
                 dictionary. Uses the symb attribute
                 to create keys in obj_map dictionary
-                
         """
         obj_map = {}
         for char in self.symb:
