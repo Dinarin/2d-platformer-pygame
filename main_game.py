@@ -100,12 +100,21 @@ def start_game():
 
     li = vi_.LevelImages(new_images, lvl_img, *ip.return_zoom_param())
 
-    # Building level 0
+    # Building levels
     dim = (24,24)
-    Level0 = l_.LevelData(dim, li)
-    Level0.load_map(0)
-    Level0.parse_map()
-    world = e_.World(Level0)
+    Level = l_.LevelData(dim, li)
+
+    # reading level number from command line
+    lvl_num = 1
+    if (len(sys.argv) == 2) and (sys.argv[1].isnumeric()):
+        if sys.argv[1] in Level.valid_maps:
+            lvl_num = sys.argv[1]
+        else:
+            raise Exception("No valid level numbered {}".format(sys.argv[1]))
+
+    Level.load_map(lvl_num)
+    Level.parse_map()
+    world = e_.World(Level)
     world.add_players(['player1','player2'])
     world.add_entities(e_.StaticBonus, 'bonus')
     world.add_tiles('floating_tile', 'grass')

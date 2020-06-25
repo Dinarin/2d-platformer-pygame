@@ -21,6 +21,8 @@ class LevelData:
             symb (str): string with all symbols of
                 the map
     """
+    # valid map files
+    valid_maps = ['0', '1']
     # map encoding
     map_symb = {
             'p': 'player',
@@ -46,29 +48,32 @@ class LevelData:
                 Exception
 
         """
+        if lvl_num in self.valid_maps:
 
-        # Find path
-        maps_path = '../levels/level'
-        lvl_path = maps_path + str(lvl_num)
-        dirname = os.path.dirname(__file__)
-        filename = os.path.join(dirname, lvl_path)
+            # Find path
+            maps_path = '../levels/level'
+            lvl_path = maps_path + str(lvl_num)
+            dirname = os.path.dirname(__file__)
+            filename = os.path.join(dirname, lvl_path)
 
-        half_len = self.dim[0]/2
-        height = self.dim[1]
+            half_len = self.dim[0]/2
+            height = self.dim[1]
 
-        # First line of the file stores all the symbols used
-        with open(filename) as f:
-            lvl = [line.rstrip('\n') for line in f]
-            self.lvl_map = lvl[1:]
-            self.symb = lvl[0]
-        if (len(self.lvl_map) <= height):  # checking if the level is full
-            if (len(self.lvl_map[0]) == half_len):
-                for i in range(len(self.lvl_map)):
-                    self.lvl_map[i] += self.lvl_map[i][::-1]
+            # First line of the file stores all the symbols used
+            with open(filename) as f:
+                lvl = [line.rstrip('\n') for line in f]
+                self.lvl_map = lvl[1:]
+                self.symb = lvl[0]
+            if (len(self.lvl_map) <= height):  # checking if the level is full
+                if (len(self.lvl_map[0]) == half_len):
+                    for i in range(len(self.lvl_map)):
+                        self.lvl_map[i] += self.lvl_map[i][::-1]
+                else:
+                    raise ValueError("Level string is not the right length")
             else:
-                raise ValueError("Level string is not the right length")
+                raise Exception("Number of lines is {}, bigger than {} in file {} ".format(len(self.lvl_map), height, filename))
         else:
-            raise Exception("Number of lines is {}, bigger than {} in file {} ".format(len(self.lvl_map), height, filename))
+            raise Exception("No valid level numbered {}".format(lvl_num))
 
     def parse_map(self):
         """Extracts coordinates from stored map.
