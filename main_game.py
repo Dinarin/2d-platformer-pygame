@@ -105,7 +105,7 @@ def start_game():
     Level = l_.LevelData(dim, li)
 
     # reading level number from command line
-    lvl_num = 1
+    lvl_num = '1'
     if (len(sys.argv) == 2) and (sys.argv[1].isnumeric()):
         if sys.argv[1] in Level.valid_maps:
             lvl_num = sys.argv[1]
