@@ -1,4 +1,7 @@
 ## A 2D platformer game written using pygame
+![Level A](https://github.com/Dinarin/2d-platformer-pygame/tree/develop/images/level_a.gif)
+
+![Level B](https://github.com/Dinarin/2d-platformer-pygame/tree/develop/images/level_b.gif)
 ### Features:
 - Two moving player characters in a 1008x1008px window:
     - blue one is controlled with arrow keys;
