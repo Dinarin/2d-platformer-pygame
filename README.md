@@ -8,7 +8,8 @@
     - they can pick up bonuses;
 - Reading symmetrical map layouts from text file;
 - Reading tile images from a single spritesheet;
-- Reading tileset names from a tileset python file.
+- Reading tileset names from a tileset python file;
+- Reading level number from command line and loading corresponding level from levels folder.
 
 #### To do:
 - Sound effects;
