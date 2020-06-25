@@ -173,7 +173,9 @@ class GameSpritesGroup(pygame.sprite.LayeredDirty):
 #class GameText(GameObject):
 #    """Class for scoreboards and level data
 #    """
-#    def __init__(self, fontpath, 
+#    def __init__(self,
+#
+#class GameFont()
 
 #class StaticText(GameText):
 #
@@ -327,6 +329,9 @@ class FreeMovingEntities(GameEntities):
 
 
 class PlayerEntities(FreeMovingEntities):
+    global_events = {
+            'game': None
+            }
     def __init__(self, rect, img_dict):
         """
         pos, v, horspeed - lists
@@ -412,9 +417,12 @@ class PlayerEntities(FreeMovingEntities):
             if sprite.active:
                 if self.rect.collidepoint(sprite.rect.center):
                     sprite.dirty = 2
+                    sprites_group.visible_count -= 1
                     sprite.visible = 0
                     self.score += 100
                     sprite.active = False
+            if sprites_group.visible_count == 0:
+                self.global_events['game'] = 'victory'
 
     def update(self):
         self.control()
@@ -454,12 +462,16 @@ class StaticBonus(GameEntities):
 #        # constructor
 #        super().__init__(self, *sprites)
 #
-#class ItemGroup(GameSpritesGroup):
-#
-#    def __init__(self, *sprites):
-#        # constructor
-#        super().__init__(self, *sprites)
-#
+class ItemGroup(GameSpritesGroup):
+
+    def __init__(self, *sprites):
+        # constructor
+        super().__init__(self, *sprites)
+        self.visible_count = len(self.sprites())
+
+    def count_visible(self):
+        self.visible_count = len(self.sprites())
+
 #class PlayersGroup(GameSpritesGroup):
 #
 #    def __init__(self, *sprites):
@@ -479,9 +491,16 @@ if __name__ == "__main__":
     bg_color = (0,35,69)
     colorkey = (94,129,162)
     screen = pygame.display.set_mode(resolution)
-    pygame.display.set_caption('Game')
-    bg_image = pygame.Surface(resolution)
-    bg_image.fill(bg_color)
+    pygame.display.set_caption('Pygame platformer')
+
+    # Loading background
+    bg_path = '../images/background.png'
+    dirname = os.path.dirname(__file__)
+    filename = os.path.join(dirname, bg_path)
+
+    bg_image_small = pygame.image.load(filename)
+    bg_image = pygame.transform.scale(bg_image_small, resolution)
+#    bg_image.fill(bg_color)
     screen.blit(bg_image, (0,0))
     # Clock
     clock = pygame.time.Clock()
@@ -558,7 +577,7 @@ if __name__ == "__main__":
     # Building level 0
     dim = (24,24)
     Level0 = l_.LevelData(dim, li)
-    Level0.load_map(1)
+    Level0.load_map(0)
     Level0.parse_map()
     world = World(Level0)
     world.add_players(['player1','player2'])
@@ -571,7 +590,7 @@ if __name__ == "__main__":
 
     # SpritesGroup setup
     player_sprites = GameSpritesGroup()
-    bonus_sprites = GameSpritesGroup()
+    bonuses_sprites = ItemGroup()
     tiles_sprites = GameSpritesGroup()
 
     player_dict = world.get_players()
@@ -583,7 +602,10 @@ if __name__ == "__main__":
     i = 0
     for e_id in bonuses_dict:
         bonus = bonuses_dict[e_id]
-        bonus_sprites.add_sprite(bonus)
+        bonuses_sprites.add_sprite(bonus)
+    # all bonuses sprites are in the group
+    bonuses_sprites.count_visible()
+
     for tile in tiles_list:
         tiles_sprites.add_sprite(tile)
     for p_id in player_dict:
@@ -593,8 +615,8 @@ if __name__ == "__main__":
         player_sprites.add_sprite(player)
         i+=1
 
-    all_sprites = GameSpritesGroup(*player_sprites.sprites(), *tiles_sprites.sprites(), *bonus_sprites.sprites())
-    non_player_sprites = GameSpritesGroup(*tiles_sprites.sprites(), *bonus_sprites.sprites())
+    all_sprites = GameSpritesGroup(*player_sprites.sprites(), *tiles_sprites.sprites(), *bonuses_sprites.sprites())
+    non_player_sprites = GameSpritesGroup(*tiles_sprites.sprites(), *bonuses_sprites.sprites())
 
     # Events dictionary:
     
@@ -610,12 +632,13 @@ if __name__ == "__main__":
             for p_id in player_dict:
                 player = player_dict[p_id]
                 player.get_keys(e)
-             
+
         for key in player_dict:
             player=player_dict[key]
-            player.collect(bonus_sprites)
+            player.collect(bonuses_sprites)
 #            print('player {} score {}, place {}'.format(key, player.score, (player.rect.x, player.rect.y)))
-
+        #if player_dict[0].global_events['game'] == 'victory':
+            #            print("Game complete!")
         # drawing all sprites
         all_sprites.clear(screen, bg_image)
         player_sprites.update()
