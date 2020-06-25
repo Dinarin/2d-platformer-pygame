@@ -448,7 +448,7 @@ class PlayerEntities(FreeMovingEntities):
 #
 class StaticBonus(GameEntities):
     bonus_list = [
-            'star'
+            'gem'
             ]
     def __init__(self, rect, img_dict, e_id=None):
         super().__init__(rect, img_dict, e_id)

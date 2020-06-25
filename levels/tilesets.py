@@ -8,7 +8,10 @@ def get_dicts(name):
          'p2_idle': [(19,3)],
          'grass_tile': [(3,4)],
          'floating_grass': [(1,4)],
-         'star_img': [(16,3)]
+         'star_img': [(16,3)],
+         'floating_snow': [(1,2)],
+         'snow_tile': [(3,2)],
+         'red_gem': [(17,9)]
         }
     lvl_img = {
         'player1': {
@@ -22,13 +25,16 @@ def get_dicts(name):
             'idle': 'p2_idle'
             },
         'ground_tile': {
-            'grass': 'grass_tile'
+            'grass': 'grass_tile',
+            'snow': 'snow_tile'
             },
         'floating_tile': {
-            'grass': 'floating_grass'
+            'grass': 'floating_grass',
+            'snow': 'floating_snow'
             },
         'bonus': {
-            'star': 'star_img'
+            'star': 'star_img',
+            'gem': 'red_gem'
         }
 }
 

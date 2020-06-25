@@ -117,8 +117,8 @@ def start_game():
     world = e_.World(Level)
     world.add_players(['player1','player2'])
     world.add_entities(e_.StaticBonus, 'bonus')
-    world.add_tiles('floating_tile', 'grass')
-    world.add_tiles('ground_tile', 'grass')
+    world.add_tiles('floating_tile', 'snow')
+    world.add_tiles('ground_tile', 'snow')
 
     # Adding objects not present in world:
     game_border = e_.GameBorders((0,0,*resolution))
