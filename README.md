@@ -1,8 +1,8 @@
 ## A 2D platformer game written using pygame
 ### Features:
 - Two moving player characters in a 1008x1008px window:
-    - yellow is controlled with arrow keys;
-    - blue is controlled with wasd keys;
+    - blue one is controlled with arrow keys;
+    - yellow one is controlled with wasd keys;
     - they can jump on tiles;
     - they treat each other as rectangular obstacles;
     - they can pick up bonuses;
