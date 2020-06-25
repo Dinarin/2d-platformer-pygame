@@ -7,7 +7,7 @@ from lib import spritesheetgaps as sp_
 from lib import pyganim as anim_
 from lib import levels as l_
 from lib import entities as e_
-#from levels import levels as dicts_
+#from levels import tilesets as ts_
 
 
 def start_game():

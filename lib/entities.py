@@ -6,7 +6,7 @@ from lib import vector as v_
 from lib import spritesheetgaps as sp_
 from lib import pyganim as anim_
 from lib import levels as l_
-from levels import levels as dicts_
+from levels import tilesets as ts_
 
 # Events
 # event1 = Event(type, **attributes)
