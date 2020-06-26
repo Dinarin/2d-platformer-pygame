@@ -105,7 +105,7 @@ def start_game():
     Level = l_.LevelData(dim, li)
 
     # reading level number from command line
-    lvl_num = 1
+    lvl_num = '1'
     if (len(sys.argv) == 2) and (sys.argv[1].isnumeric()):
         if sys.argv[1] in Level.valid_maps:
             lvl_num = sys.argv[1]
@@ -117,8 +117,8 @@ def start_game():
     world = e_.World(Level)
     world.add_players(['player1','player2'])
     world.add_entities(e_.StaticBonus, 'bonus')
-    world.add_tiles('floating_tile', 'grass')
-    world.add_tiles('ground_tile', 'grass')
+    world.add_tiles('floating_tile', 'snow')
+    world.add_tiles('ground_tile', 'snow')
 
     # Adding objects not present in world:
     game_border = e_.GameBorders((0,0,*resolution))
