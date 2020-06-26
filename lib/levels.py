@@ -30,10 +30,11 @@ class LevelData:
             'f': 'floating_tile',
             'b': 'bonus'
             }
-    def __init__(self, dim, lvl_img):
+    def __init__(self, dim, lvl_img, t_name='grass'):
         self.dim = dim
         self.obj_map = {}
         self.lvl_img = lvl_img
+        self.tileset = lvl_img[t_name]
 
     def load_map(self, lvl_num):
         """Loads a map from fixed source.
@@ -100,7 +101,7 @@ class LevelData:
             y += 1
         self.obj_map = obj_map
 
-    def set_lvl_images(self, lvl_img):
+    def set_lvl_images(self, lvl_img, t_name='grass'):
         """Changes level tileset.
             Reads a lvl_img dictionary and stores
                 it in lvl_img attribute
@@ -110,6 +111,14 @@ class LevelData:
                 object names to surfaces of sprites
         """
         self.lvl_img = lvl_img
+        self.tileset = lvl_img[tileset_name]
+
+    def get_lvl_dict(self):
+        """Returns level dictionary with tileset name.
+
+        """
+        pri
+        return (self.obj_map, self.tileset)
 
 if __name__ == "__main__":
     dim = (24,24)

@@ -30,6 +30,7 @@ class World:
         self.entity_id = 0
         self.tile_id = 0
         self.players = {}
+        self.tileset = level_data.tileset
 
         # Storing level data
         self.obj_dict = level_data.obj_map  # stores what coordinates do objects have
@@ -50,10 +51,10 @@ class World:
         return (x_px, y_px, t_width, t_height)
 
     # Managing entities
-    def add_tiles(self, tile_type, tile_color):
+    def add_tiles(self, tile_name):
         """Adds tiles to the game
         """
-        xys = self.obj_dict[tile_type]
+        xys = self.tileset[tile_name]
         img_dict = self.imgs.get_obj(tile_type)
         # Stores the tile then advances the current id
 

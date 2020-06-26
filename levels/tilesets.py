@@ -10,7 +10,7 @@ def get_dicts(name):
          'floating_grass': [(1,4)],
          'star_img': [(16,3)]
         }
-    lvl_img = {
+    player_img = {
         'player1': {
             'run_left': 'p1_run_left',
             'run_right': 'p1_run_right',
@@ -21,15 +21,17 @@ def get_dicts(name):
             'run_right': 'p2_run_right',
             'idle': 'p2_idle'
             },
-        'ground_tile': {
-            'grass': 'grass_tile'
+    tileset = {
+        'grass': {
+            'ground_tile': 'grass_tile',
+            'floating_tile': 'snow_tile',
+            'bonus': 'star_img'
             },
-        'floating_tile': {
-            'grass': 'floating_grass'
-            },
-        'bonus': {
-            'star': 'star_img'
-        }
+        'snow': {
+            'floating_tile': 'floating_snow',
+            'ground_tile': 'snow_tile',
+            'bonus': 'red_gem'
+            }
 }
 
     if name == 'img':

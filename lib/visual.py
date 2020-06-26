@@ -149,11 +149,20 @@ class LevelImages:
         Attributes:
             obj_dict is a dictionary that assigns lists of surfaces or pyganim objects to a game object name
     """
+    players = ['player1', 'player2']
     def __init__(self, img_dict, lvl_dict, tile_size, zoom=None):
+
         self.zoom = zoom
         self.tile_size = tile_size
         lvl_obj = {}
-        for obj in lvl_dict:
+
+        for player_name in self.players:
+            lvl_obj[player_name] = {}
+            for state in lvl_dict[player_name]:
+                img_name =lvl_dict[player_name][state]
+                lvl_obj[player_name][state] = img_dict[img_name]
+
+        for tileset in lvl_dict:
             # creating empty dictionary for every object
             lvl_obj[obj] = {}
 
