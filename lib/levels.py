@@ -8,18 +8,19 @@ class LevelData:
     dim (tuple): m
 
         Attributes:
+            valid_maps (list): list of valid levels number strings.
             map_symb (dict): dictionary that
-                maps txt symbols to object names
+                maps txt symbols to object names.
             lvl_map (list of str): stored content of
-                the map file without the first line
-            dim (tuple): dimensions of one tile
+                the map file without the first line.
+            dim (tuple): dimensions of one tile.
             obj_map (dict): dictionary that maps
                 object names to xy coordinates on
-                the map
+                the map.
             lvl_img (dict): dictionary that maps
-                object names to surfaces of sprites
+                object names to surfaces of sprites.
             symb (str): string with all symbols of
-                the map
+                the map.
     """
     # valid map files
     valid_maps = ['0', '1', '2']
@@ -30,11 +31,12 @@ class LevelData:
             'f': 'floating_tile',
             'b': 'bonus'
             }
-    def __init__(self, dim, lvl_img, t_name='grass'):
+    def __init__(self, dim, lvl_img):
         self.dim = dim
         self.obj_map = {}
         self.lvl_img = lvl_img
-        self.tileset = lvl_img[t_name]
+
+        # Getting tileset name from user or using default
 
     def load_map(self, lvl_num):
         """Loads a map from fixed source.
@@ -101,7 +103,7 @@ class LevelData:
             y += 1
         self.obj_map = obj_map
 
-    def set_lvl_images(self, lvl_img, t_name='grass'):
+    def set_lvl_images(self, lvl_img):
         """Changes level tileset.
             Reads a lvl_img dictionary and stores
                 it in lvl_img attribute
@@ -111,14 +113,12 @@ class LevelData:
                 object names to surfaces of sprites
         """
         self.lvl_img = lvl_img
-        self.tileset = lvl_img[tileset_name]
 
     def get_lvl_dict(self):
-        """Returns level dictionary with tileset name.
+        """Returns level dictionary.
 
         """
-        pri
-        return (self.obj_map, self.tileset)
+        return self.obj_map
 
 if __name__ == "__main__":
     dim = (24,24)

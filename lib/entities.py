@@ -30,7 +30,6 @@ class World:
         self.entity_id = 0
         self.tile_id = 0
         self.players = {}
-        self.tileset = level_data.tileset
 
         # Storing level data
         self.obj_dict = level_data.obj_map  # stores what coordinates do objects have
@@ -51,17 +50,17 @@ class World:
         return (x_px, y_px, t_width, t_height)
 
     # Managing entities
-    def add_tiles(self, tile_name):
+    def add_tiles(self, tile_type, tile_name='snow'):
         """Adds tiles to the game
         """
-        xys = self.tileset[tile_name]
+        xys = self.obj_dict[tile_type]
         img_dict = self.imgs.get_obj(tile_type)
         # Stores the tile then advances the current id
 
         for xy in xys:
             rect = self.xy_to_rect(xy)
 #            print("tile", rect, img_dict)
-            self.tiles.append(GameTiles(rect, img_dict, tile_color))
+            self.tiles.append(GameTiles(rect, img_dict, tile_name))
 
 
     def add_players(self, player_images_list):
@@ -449,7 +448,7 @@ class PlayerEntities(FreeMovingEntities):
 #
 class StaticBonus(GameEntities):
     bonus_list = [
-            'gem'
+            'star'
             ]
     def __init__(self, rect, img_dict, e_id=None):
         super().__init__(rect, img_dict, e_id)

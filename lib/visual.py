@@ -8,14 +8,23 @@ from lib import pyganim as pyganim_
 
 
 class ImagePicker:
-    """Finds images in spritesheet
+    """Finds images in the spritesheet.
 
         Args:
+            imgpath (str): path to the spritesheet image.
             tile_size (tuple): dimensions of a tile
-                (width, height)
+                (width, height).
+            gap_size (int): gap between sprites in spritesheet
+                in pixels.
+            border (int): spritesheet offset in pixels.
+            colorkey (tuple): RGB values of the colorkey.
+
+        Attributes:
+            spritesheet (:obj: spritesheetgaps.Spritesheet):
+            colorkey (tuple): RGB values of the colorkey.
     """
-    def __init__(self, imgfile, tile_size, gap_size, border=None, colorkey=None):
-        self.spritesheet = sp.SpriteSheet(imgfile, tile_size, gap_size, border=border)
+    def __init__(self, imgpath, tile_size, gap_size, border=None, colorkey=None):
+        self.spritesheet = sp.SpriteSheet(imgpath, tile_size, gap_size, border=border)
         self.colorkey = colorkey
         self.images = {}
         # Modified dict
@@ -39,8 +48,7 @@ class ImagePicker:
 
     # Methods that input sprites in dict attribute
     def get_strips(self, rows_dict):
-        """
-        Create surfaces from rows and put them into dictionary
+        """Create surfaces from rows and put them into dictionary.
         """
         for name in rows_dict:
             img_list = rows_dict[name]
@@ -54,8 +62,7 @@ class ImagePicker:
                 self.images[name].append(image)
 
     def get_images(self, xy_dict):
-        """
-        Create surfaces from rects and put them into dictionary
+        """Create surfaces from rects and put them into dictionary.
         """
         for name in xy_dict:
             img_xy = xy_dict[name]
@@ -70,8 +77,7 @@ class ImagePicker:
 
     # Methods that return objects that were made from dict attribute
     def animate(self, images_name, delay, loop=True):
-        """
-        Make a pyganim object from a name and properties
+        """Make a pyganim object from a name and properties.
         """
         surfaces = self.modified[images_name]
         frames = []
@@ -80,14 +86,12 @@ class ImagePicker:
         self.modified[images_name] = pyganim_.PygAnimation(frames, loop)
 
     def return_images(self, *images_names, zoomed=True):
-        """
-        Return list of surfaces from names
+        """Return list of surfaces from names.
         """
         if zoomed:
             images = self.modified
         else:
             images = self.images
-
         new_dict = {}
         # Returns only names that were arguments
         for name in images_names:
@@ -95,17 +99,15 @@ class ImagePicker:
         return new_dict
 
     def return_zoom_param(self):
-        """
-        Returns zoom and tile_size
+        """Returns zoom and tile_size.
         """
         if self.zoom is not None:
             return (self.t_modified, self.zoom)
         else:
-            raise Exception("Dict wasn't zoomed")
+            raise Exception("Dictionary wasn't zoomed")
 
     def zoom_dict(self, multiplier):
-        """
-        Zooms entire sprite dict without modifying it
+        """Zooms entire sprite dict without modifying it.
         """
         self.zoom = multiplier
         self.t_modified = (int(self.t_size[0]*multiplier), \
@@ -120,8 +122,7 @@ class ImagePicker:
         self.modified = new_images
 
     def flip(self, old_name, new_name, hor=True):
-        """
-        Flips images horizontally or vertically, calls them a new name and adds to dict
+        """Flips images horizontally or vertically, calls them a new name and adds to dict.
         """
         if hor:
             bools = (True, False)
@@ -134,7 +135,6 @@ class ImagePicker:
 
 class LevelImages:
     """Stores surfaces of a level
-    
         Args:
             img_dict (dict): is a dictionary
                 received from ImagePicker instance,
@@ -147,7 +147,7 @@ class LevelImages:
             zoom (int): is passed from ImagePicker
 
         Attributes:
-            obj_dict is a dictionary that assigns lists of surfaces or pyganim objects to a game object name
+            obj_dict is a dictionary that assigns lists of surfaces or pyganim objects to a game object name.
     """
     players = ['player1', 'player2']
     def __init__(self, img_dict, lvl_dict, tile_size, zoom=None):
@@ -155,17 +155,9 @@ class LevelImages:
         self.zoom = zoom
         self.tile_size = tile_size
         lvl_obj = {}
-
-        for player_name in self.players:
-            lvl_obj[player_name] = {}
-            for state in lvl_dict[player_name]:
-                img_name =lvl_dict[player_name][state]
-                lvl_obj[player_name][state] = img_dict[img_name]
-
-        for tileset in lvl_dict:
+        for obj in lvl_dict:
             # creating empty dictionary for every object
             lvl_obj[obj] = {}
-
             for state in lvl_dict[obj]:
                 # filling object dictionary with
                 # corresponding surfaces
@@ -180,47 +172,6 @@ class LevelImages:
         return self.obj_dict[obj]
 
 
-class GameView(pygame.Surface):
-    """
-    Main game image that will be blitted on player camera.
-    ...
-    Attributes
-    ----------
-    Methods
-    ----------
-    __init__(
-    """
-
-    def __init__(self, coordinates, dimensions, background):
-        pygame.Surface.__init__(self, dimensions)
-        self.blit(background, (0,0))
-        self.display = background.copy()
-        self.rect = pygame.Rect(coordinates, dimensions)
-
-    # main rendering methods of the game
-    def update(self, active_group):
-        """
-        Updates sprites that are changing
-        """
-        active_group.update()
-
-    def render(self):
-        """
-        Returns a rect list that should be passed to pygame.display.update()
-        """
-        return self.render_group.draw(self)
-
-    def find_render_group(self, activity): self.render_group = activity.get_render_group
-
-
-class GameWorld:
-    def __init__(self, sprites_dict, variables_dict):  # some sort of stored level data should be the arguments
-        player_sprite = sprites_dict['player']
-#        player1 = PlayerObject(player_sprite, )
-        self.render_g = GameSpritesGroup(player1)
-
-    def get_render_group(self):
-        return self.render_g
 
 
 if __name__ == "__main__":
