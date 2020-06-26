@@ -84,6 +84,11 @@ def start_game():
     new_images = ip.modified
 
 
+
+    # Generating level data from maps and images.
+    li = vi_.LevelImages(new_images, lvl_img, *ip.return_zoom_param())
+    Level = l_.LevelData(map_dim, li)
+
     # Creating level data object
     # reading level number from command line
     lvl_num = '1'
@@ -93,9 +98,7 @@ def start_game():
         else:
             raise Exception("No valid level numbered {}".format(sys.argv[1]))
 
-    # Generating level data from maps and images.
-    li = vi_.LevelImages(new_images, lvl_img, *ip.return_zoom_param())
-    Level = l_.LevelData(map_dim, li)
+    # Loading map.
     Level.load_map(lvl_num)
     Level.parse_map()
 
