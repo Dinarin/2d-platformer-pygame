@@ -20,6 +20,7 @@ def start_game():
     map_dim = (24,24)  # level map dimensions
     gap = 2
     border = 2
+    game_over = False
 
     # Setting string variables.
     bg_path = './images/background.png'
@@ -32,18 +33,17 @@ def start_game():
 
     # Setting dictionaries with player controls.
     controls = [{
-            'left': pygame.K_LEFT,
-            'right': pygame.K_RIGHT,
-            'up': pygame.K_UP,
-            'down': pygame.K_DOWN
-            },
-            {
             'left': pygame.K_a,
             'right': pygame.K_d,
             'up': pygame.K_w,
             'down': pygame.K_s
-            }
-            ]
+            },
+            {
+            'left': pygame.K_LEFT,
+            'right': pygame.K_RIGHT,
+            'up': pygame.K_UP,
+            'down': pygame.K_DOWN
+            }]
 
     # Loading tilesets dictionaries from file.
     images = ts_.get_dicts('img')
@@ -53,6 +53,7 @@ def start_game():
 
     # Pygame begins.
     # Opening pygame window and writing window name.
+    pygame.freetype.init()
     screen = pygame.display.set_mode(resolution)
     pygame.display.set_caption('Pygame platformer')
 
@@ -123,9 +124,7 @@ def start_game():
 
     # Adding tiles sprites to group.
     tiles_list = world.get_tiles()
-    tiles_sprites = e_.GameSpritesGroup()
-    for tile in tiles_list:
-        tiles_sprites.add_sprite(tile)
+    tiles_sprites = e_.GameSpritesGroup(*tiles_list)
 
     # Adding player sprites to group.
     # Player 1 has p_id = 0.
@@ -138,10 +137,28 @@ def start_game():
         player.set_colliding_list(game_border, tiles_sprites, player_sprites)
         player_sprites.add_sprite(player)
 
-    # Creating groups containing sprites from different groups.
-    all_sprites = e_.GameSpritesGroup(*player_sprites.sprites(), *tiles_sprites.sprites(), *bonuses_sprites.sprites())
-    non_player_sprites = e_.GameSpritesGroup(*tiles_sprites.sprites(), *bonuses_sprites.sprites())
+    # Adding text sprites.
+    font = e_.GameFont()
+    text_color = ((30, 167, 255), (255, 204, 0))   # blue and yellow
+    text_color2 = (232, 106, 23)  # red
+    world.add_text(e_.GameText, (500, 500, 2, 2), font, text_color[0])
+    world.add_text(e_.GameText, (500, 500, 2, 2), font, text_color[1])
 
+    text_sprites = e_.GameSpritesGroup(*world.texts)
+
+    world.texts[0].set_text('Player 1: {}'.format(player_dict[0].score), 1)
+    world.texts[0].rect.left = 8
+    world.texts[0].save_alignment()
+
+    world.texts[1].set_text('Player 2: {}'.format(player_dict[1].score), 2)
+    world.texts[1].rect.right = 1000
+    world.texts[1].save_alignment()
+
+
+
+    # Creating groups containing sprites from different groups.
+    all_sprites = e_.GameSpritesGroup(*text_sprites.sprites(), *player_sprites.sprites(), *tiles_sprites.sprites(), *bonuses_sprites.sprites())
+    non_player_sprites = e_.GameSpritesGroup(*tiles_sprites.sprites(), *text_sprites.sprites(), *bonuses_sprites.sprites())
 
 
     # Game starts.
@@ -158,19 +175,36 @@ def start_game():
                 player.get_keys(e)
 
         # Cycling through players.
-        for p_id in player_dict:
-            player=player_dict[p_id]
-            player.collect(bonuses_sprites)
-            # print('player {} score {}, place {}'.format(key, player.score, (player.rect.x, player.rect.y)))
-        # if player_dict[0].global_events['game'] == 'victory':
-            # print("Game complete!")
+        if not game_over:
+            for p_id in player_dict:
+                player=player_dict[p_id]
+                player.collect(bonuses_sprites)
+                # print('player {} score {}, place {}'.format(key, player.score, (player.rect.x, player.rect.y)))
+                event = player.global_events['game']
+                world.texts[p_id].change_text("Player {}: {}".format(p_id+1, player.score))
+                if event is not None:
+                    if event == 'end':
+                        result = world.check_scores()
+                        world.add_text(e_.GameText, (500, 500, 2, 2), font, text_color2, size=32)
+                        result_text = world.texts[2]
+                        if result == 0:
+                            result_text.set_text("It's a draw!")
+                        else:
+                            result_text.change_color(text_color[p_id])
+                            result_text.set_text("Player {} wins".format(result))
+                        result_text.rect.center = (504,504)
+
+                        all_sprites.add(world.texts[2])
+                        game_over = True
+                        break
 
         # Drawing all sprites on the display.
         # Clearing all sprites.
         all_sprites.clear(screen, bg_image)
 
         # Updating moving objects (only players).
-        player_sprites.update()
+        if not game_over:
+            player_sprites.update()
 
         # Drawing all sprites.
         changed_rects = all_sprites.draw(screen, bg_image)
