@@ -84,7 +84,6 @@ def start_game():
     new_images = ip.modified
 
 
-
     # Generating level data from maps and images.
     li = vi_.LevelImages(new_images, lvl_img, *ip.return_zoom_param())
     Level = l_.LevelData(map_dim, li)
