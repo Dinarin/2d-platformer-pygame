@@ -7,6 +7,7 @@ from lib import spritesheetgaps as sp_
 from lib import pyganim as anim_
 from lib import levels as l_
 from levels import tilesets as ts_
+from pygame import freetype
 
 # Events
 # event1 = Event(type, **attributes)
@@ -30,6 +31,9 @@ class World:
         self.entity_id = 0
         self.tile_id = 0
         self.players = {}
+
+        # List for text and buttons
+        self.texts = []
 
         # Storing level data
         self.obj_dict = level_data.obj_map  # stores what coordinates do objects have
@@ -83,6 +87,9 @@ class World:
             self.entities[self.entity_id] = EntityClass(rect, img_dict, self.entity_id)
             self.entity_id += 1
 
+
+    def add_text(self, TextClass, rect, font, color=None, size=14):
+        self.texts.append(TextClass(rect, font, color, size))
 
     def get_tiles(self):
         return self.tiles
@@ -182,12 +189,58 @@ class GameSpritesGroup(pygame.sprite.LayeredDirty):
     def add_sprite(self, sprite):
         self.add(sprite)
 
-#class GameText(GameObject):
-#    """Class for scoreboards and level data
-#    """
-#    def __init__(self,
-#
-#class GameFont()
+class GameFont(pygame.freetype.Font):
+    def __init__(self, size=14):
+        super().__init__(None, size)
+
+    def write_with_font(self, text, fgcolor=None, size=14):
+        return self.render(text, fgcolor=fgcolor, size=size)
+
+
+class GameText(GameObjects):
+    """Class for scoreboards and level data
+
+        Args:
+            game_font (:obj: GameFont)
+    """
+    def __init__(self, rect, game_font, color=None, size=14):
+        super().__init__(rect)
+        self.font = game_font
+        self.left = 0
+        self.right = 0
+        self.size = size
+        self.color = color
+
+    def set_text(self, text, align=0):
+        """
+        align 0 - no alignment
+        align 1 - left
+        align 2 - right
+        """
+        self.image, self.rect = self.font.write_with_font(text, fgcolor=self.color, size=self.size)
+        self.align = align
+        if align == 1:
+            self.rect.left = self.left
+        elif align == 2:
+            self.rect.right = self.right
+
+    def change_text(self, text):
+        """
+        """
+        self.image, self.rect = self.font.write_with_font(text, fgcolor=self.color, size=self.size)
+        if self.align == 1:
+            self.rect.left = self.left
+        elif self.align == 2:
+            self.rect.right = self.right
+    def change_color(self, color):
+        self.color = color
+
+    def save_alignment(self):
+        if self.align == 1:
+            self.left = self.rect.left
+        if self.align == 2:
+            self.right = self.rect.right
+
 
 #class StaticText(GameText):
 #
@@ -608,9 +661,6 @@ if __name__ == "__main__":
     player_dict = world.get_players()
     bonuses_dict = world.get_entities()
     tiles_list = world.get_tiles()
-#    print(bonuses_dict)
-#    print(player_dict)
-#    print(tiles_list)
     i = 0
     for e_id in bonuses_dict:
         bonus = bonuses_dict[e_id]
