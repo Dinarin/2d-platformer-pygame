@@ -20,6 +20,7 @@ def start_game():
     map_dim = (24,24)  # level map dimensions
     gap = 2
     border = 2
+    game_over = False
 
     # Setting string variables.
     bg_path = './images/background.png'
@@ -32,18 +33,17 @@ def start_game():
 
     # Setting dictionaries with player controls.
     controls = [{
-            'left': pygame.K_LEFT,
-            'right': pygame.K_RIGHT,
-            'up': pygame.K_UP,
-            'down': pygame.K_DOWN
-            },
-            {
             'left': pygame.K_a,
             'right': pygame.K_d,
             'up': pygame.K_w,
             'down': pygame.K_s
-            }
-            ]
+            },
+            {
+            'left': pygame.K_LEFT,
+            'right': pygame.K_RIGHT,
+            'up': pygame.K_UP,
+            'down': pygame.K_DOWN
+            }]
 
     # Loading tilesets dictionaries from file.
     images = ts_.get_dicts('img')
@@ -158,19 +158,29 @@ def start_game():
                 player.get_keys(e)
 
         # Cycling through players.
-        for p_id in player_dict:
-            player=player_dict[p_id]
-            player.collect(bonuses_sprites)
-            # print('player {} score {}, place {}'.format(key, player.score, (player.rect.x, player.rect.y)))
-        # if player_dict[0].global_events['game'] == 'victory':
-            # print("Game complete!")
+        if not game_over:
+            for p_id in player_dict:
+                player=player_dict[p_id]
+                player.collect(bonuses_sprites)
+                # print('player {} score {}, place {}'.format(key, player.score, (player.rect.x, player.rect.y)))
+                event = player.global_events['game']
+                if event is not None:
+                    if event == 'end':
+                        result = world.check_scores()
+                        if result == 0:
+                            print("It's a draw!")
+                        else:
+                            print("Player {} wins".format(result))
+                        game_over = True
+                        break
 
         # Drawing all sprites on the display.
         # Clearing all sprites.
         all_sprites.clear(screen, bg_image)
 
         # Updating moving objects (only players).
-        player_sprites.update()
+        if not game_over:
+            player_sprites.update()
 
         # Drawing all sprites.
         changed_rects = all_sprites.draw(screen, bg_image)

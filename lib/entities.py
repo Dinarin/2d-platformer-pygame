@@ -93,6 +93,18 @@ class World:
     def get_players(self):
         return self.players
 
+    def check_scores(self):
+        """Checks scores of two players and returns the number of the winner.
+        """
+        player1 = self.players[0]
+        player2 = self.players[1]
+
+        if player1.score > player2.score:
+            return 1
+        elif player2.score > player1.score:
+            return 2
+        elif player2.score == player1.score:
+            return 0
 
 
 
@@ -422,7 +434,7 @@ class PlayerEntities(FreeMovingEntities):
                     self.score += 100
                     sprite.active = False
             if sprites_group.visible_count == 0:
-                self.global_events['game'] = 'victory'
+                self.global_events['game'] = 'end'
 
     def update(self):
         self.control()
