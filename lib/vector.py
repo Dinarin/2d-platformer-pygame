@@ -1,11 +1,12 @@
 class Vector2d:
+    #    @type_check(tuple, 2)
     def __init__(self, coords):
         """
         input a tuple of (x,y)
         """
         # Type check
-        if not ((isinstance(coords, tuple)) and (len(coords) == 2)):
-            raise TypeError("{} isn't a tuple of length 2".format(coords))
+#        if not ((isinstance(coords, tuple)) and (len(coords) == 2)):
+#            raise TypeError("{} isn't a tuple of length 2".format(coords))
         self.coords = list(coords)
         self.x = coords[0]
         self.y = coords[1]
@@ -120,3 +121,5 @@ if __name__ == "__main__":
     vector1 *= 2.0
     print(-vector1)
     print(abs(vector2))
+    vector1 = Vector2d('wrong'
+            )

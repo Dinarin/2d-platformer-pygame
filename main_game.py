@@ -73,12 +73,15 @@ def start_game():
     ip.get_images(images)
     ip.flip('p1_run_right','p1_run_left')
     ip.flip('p2_run_right','p2_run_left')
+    ip.flip('p1_jump_right','p1_jump_left')
+    ip.flip('p2_jump_right','p2_jump_left')
     ip.zoom_dict(2)  # zooming _before_ animating
 
     # Generating animations images.
-    delay = 0.2
+    delay = 0.25
     animations_list = [
-            'p1_run_right','p1_run_left','p2_run_right','p2_run_left'
+            'p1_run_right','p1_run_left','p2_run_right','p2_run_left',
+            'p1_jump_right','p1_jump_left','p2_jump_right','p2_jump_left',
             ]
     for animation in animations_list:
         ip.animate(animation, delay)
@@ -141,18 +144,14 @@ def start_game():
     font = e_.GameFont()
     text_color = ((30, 167, 255), (255, 204, 0))   # blue and yellow
     text_color2 = (232, 106, 23)  # red
-    world.add_text(e_.GameText, (500, 500, 2, 2), font, text_color[0])
-    world.add_text(e_.GameText, (500, 500, 2, 2), font, text_color[1])
+    world.add_text(e_.GameText, (500, 500, 2, 2), font, text_color[0], align=1)
+    world.add_text(e_.GameText, (500, 500, 2, 2), font, text_color[1], align=2)
 
     text_sprites = e_.GameSpritesGroup(*world.texts)
 
-    world.texts[0].set_text('Player 1: {}'.format(player_dict[0].score), 1)
-    world.texts[0].rect.left = 8
-    world.texts[0].save_alignment()
+    world.texts[0].set_text('Player 1: {}'.format(player_dict[0].score))
 
-    world.texts[1].set_text('Player 2: {}'.format(player_dict[1].score), 2)
-    world.texts[1].rect.right = 1000
-    world.texts[1].save_alignment()
+    world.texts[1].set_text('Player 2: {}'.format(player_dict[1].score))
 
 
 
@@ -181,7 +180,7 @@ def start_game():
                 player.collect(bonuses_sprites)
                 # print('player {} score {}, place {}'.format(key, player.score, (player.rect.x, player.rect.y)))
                 event = player.global_events['game']
-                world.texts[p_id].change_text("Player {}: {}".format(p_id+1, player.score))
+                world.texts[p_id].set_text("Player {}: {}".format(p_id+1, player.score))
                 if event is not None:
                     if event == 'end':
                         result = world.check_scores()

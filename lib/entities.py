@@ -13,8 +13,6 @@ from pygame import freetype
 # event1 = Event(type, **attributes)
 class World:
     """Adds entities according to level data.
-        Args:
-            level_data (:obj: LevelData): 
     """
 
     def __init__(self, level_data):
@@ -84,8 +82,8 @@ class World:
             self.entity_id += 1
 
 
-    def add_text(self, TextClass, rect, font, color=None, size=14):
-        self.texts.append(TextClass(rect, font, color, size))
+    def add_text(self, TextClass, rect, font, color=None, size=14, align=0):
+        self.texts.append(TextClass(rect, font, color, size, align))
 
     def get_tiles(self):
         return self.tiles
@@ -214,24 +212,18 @@ class GameText(GameObjects):
         self.right = 0
         self.size = size
         self.color = color
-        self.align = align
+        self.set_alignment(align)
         self.text = None
 
-    def set_text(self, text, align=0):
+    def set_text(self, text):
         """Writes the text string on the sprite.
             Args:
                 text (str): string of text
-                align (int): number corresponding to alignment
-                    0 - no alignment
-                    1 - left
-                    2 - right
         """
         self.image, self.rect = self.font.write_with_font(text, fgcolor=self.color, size=self.size)
-        self.align = align
-        if align == 1:
-            self.rect.left = self.left
-        elif align == 2:
-            self.rect.right = self.right
+        self.set_alignment(self.align)
+        self.text = text
+
 
     def change_color(self, color):
         """Changes the font color of the sign.
@@ -254,19 +246,26 @@ class GameText(GameObjects):
                     self.image, self.rect = self.font.write_with_font(\
                             self.text, fgcolor=self.color, size=self.size)
         self.color = color
+        self.set_alignment(self.align)
 
     def set_alignment(self, align):
+        """Sets alignment.
+            align (int): number corresponding to alignment
+                0 - no alignment
+                1 - left
+                2 - right
+        """
         self.align = align
         if self.align == 1:
-            self.left = self.rect.left
+            self.rect.left = 8
         if self.align == 2:
-            self.right = self.rect.right
+            self.rect.right = 1000
 
 
 #class StaticText(GameText):
 #
 #class DynamicText
-# 
+#
 class GameBorders(GameObjects):
     def __init__(self, rect):
         """
@@ -366,8 +365,7 @@ class FreeMovingEntities(GameEntities):
         self.rects['right'].center = self.rect.midright
 
         self.check_x_collisions()
-        if self.speed.x == 0:
-            self.states['direction'] = 'none'
+
 
     def set_colliding_list(self, border, *sprites_groups):
         """
@@ -434,7 +432,9 @@ class PlayerEntities(FreeMovingEntities):
                 }
         self.anim_dict = {
                 ('left', 'ground'): 'run_left',
-                ('right','ground'): 'run_right'
+                ('right','ground'): 'run_right',
+                ('left', 'jump'): 'jump_left',
+                ('right', 'jump'): 'jump_right'
              }
         self.events = {
             'up': False,
@@ -453,6 +453,9 @@ class PlayerEntities(FreeMovingEntities):
 
     def start_animation(self, animation_name):
         current_animation = self.img_dict[animation_name]
+#        if current_animation == :
+#            current_animation.nextFrame()
+#        else:
         current_animation.play()
         self.current_animation = current_animation
 
@@ -492,6 +495,7 @@ class PlayerEntities(FreeMovingEntities):
             if self.on_ground:
                 self.states['direction'] = 'center'
                 self.speed.y = -self.jumpheight
+                self.states['vertical'] = 'jump'
 
         if not (self.events['left'] or self.events['right']):
             self.speed.x = 0
@@ -514,14 +518,26 @@ class PlayerEntities(FreeMovingEntities):
         self.control()
         self.move()
 
-        # clean image
+        # Changing states after moving.
+        if (self.speed.x == 0) and (self.states['vertical'] == 'ground'):
+            self.states['direction'] = 'center'
+        if self.on_ground:
+            self.states['vertical'] = 'ground'
+
+        # Cleaning image and applying animations.
         self.clear()
         anim_tuple = (self.states['direction'],\
                 self.states['vertical'])
-        if ((self.last_state is not anim_tuple) and (anim_tuple in self.anim_dict.keys())):
+
+        # Checking if the animation should change
+        if (self.last_state != anim_tuple)\
+                and (anim_tuple in self.anim_dict.keys()):
             self.start_animation(self.anim_dict[anim_tuple])
             self.last_state = anim_tuple
-        if (self.current_animation == None) or (self.states['direction'] is 'none'):
+
+        # When the idle image should be shown.
+        if (self.current_animation == None)\
+                or (self.states['direction'] == 'center'):
             self.image.blit(self.img_dict['idle'][0], (0,0))
         else:
             self.current_animation.blit(self.image, (0,0))
@@ -650,7 +666,7 @@ if __name__ == "__main__":
     ip.zoom_dict(2)
 
     # animations
-    delay = 0.2
+    delay = 1.0
     animations_list = [
             'p1_run_right','p1_run_left','p2_run_right','p2_run_left'
             ]
@@ -701,8 +717,6 @@ if __name__ == "__main__":
     all_sprites = GameSpritesGroup(*player_sprites.sprites(), *tiles_sprites.sprites(), *bonuses_sprites.sprites())
     non_player_sprites = GameSpritesGroup(*tiles_sprites.sprites(), *bonuses_sprites.sprites())
 
-    # Events dictionary:
-    
     # Game cycle
     while True:
         # updating game
