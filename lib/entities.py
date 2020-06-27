@@ -13,16 +13,12 @@ from pygame import freetype
 # event1 = Event(type, **attributes)
 class World:
     """Adds entities according to level data.
-
+        Args:
+            level_data (:obj: LevelData): 
     """
 
     def __init__(self, level_data):
         """
-        img_dict is a dictionary received from ImagePicker,that assigns
-            lists of surfaces or single pyganim objects to a unique name
-        lvl_dict is a dictionary that assigns a unique name from
-            img_dict to a game object name
-        self.obj_dict is a dictionary that assigns lists of surfaces or pyganim objects to a game object name
         """
 
         # Preparing to track objects
@@ -117,11 +113,11 @@ class World:
 
 class GameObjects(pygame.sprite.DirtySprite):
     def __init__(self, rect, img_dict=None):
-        """
-        Class for game objects
-        dim - (height, width)
-        pic - Surface with image
-        Objects' coordinates are initially (0,0)
+        """Class for all game objects.
+
+            Args:
+                rect (tup): (x, y, height, width)
+                img_dict (dict): image dictionary with surfaces
         """
         super().__init__()
 
@@ -129,8 +125,6 @@ class GameObjects(pygame.sprite.DirtySprite):
         self.dirty = 2
         self.visible = 1
 
-        # Setting game object attributes
-        #self._quality = object_dict['quality']
 
         # Setting sprite attributes
         self.rect = pygame.Rect(rect)
@@ -155,6 +149,12 @@ class GameObjects(pygame.sprite.DirtySprite):
         self.image.fill(self.colorkey)
 
     def rects_from_sides(self, offset=2, out=False):
+        """Method for creating pygame.Rect objects centered on each side.
+            Args:
+                offset (int): half of the shorter side of the new rectangle.
+                out (bool): True if rectangles's area is strictly outside
+                    the parent rectangle.
+        """
         d_offset = offset + offset
         top_l = self.rect.topleft  # topright point
         top_r = self.rect.topright  # topleft point
@@ -177,7 +177,11 @@ class GameObjects(pygame.sprite.DirtySprite):
         self.rects['right'] = pygame.Rect(right_rect)
 
 class GameSpritesGroup(pygame.sprite.LayeredDirty):
+    """Class for game sprite groups.
+        Args:
+            *sprites (:obj: pygame.sprite.Sprite): any number of sprite objects
 
+    """
     def __init__(self, *sprites):
         # constructor
         super().__init__(*sprites)
@@ -203,19 +207,24 @@ class GameText(GameObjects):
         Args:
             game_font (:obj: GameFont)
     """
-    def __init__(self, rect, game_font, color=None, size=14):
+    def __init__(self, rect, game_font, color=None, size=14, align=0):
         super().__init__(rect)
         self.font = game_font
         self.left = 0
         self.right = 0
         self.size = size
         self.color = color
+        self.align = align
+        self.text = None
 
     def set_text(self, text, align=0):
-        """
-        align 0 - no alignment
-        align 1 - left
-        align 2 - right
+        """Writes the text string on the sprite.
+            Args:
+                text (str): string of text
+                align (int): number corresponding to alignment
+                    0 - no alignment
+                    1 - left
+                    2 - right
         """
         self.image, self.rect = self.font.write_with_font(text, fgcolor=self.color, size=self.size)
         self.align = align
@@ -224,18 +233,30 @@ class GameText(GameObjects):
         elif align == 2:
             self.rect.right = self.right
 
-    def change_text(self, text):
-        """
-        """
-        self.image, self.rect = self.font.write_with_font(text, fgcolor=self.color, size=self.size)
-        if self.align == 1:
-            self.rect.left = self.left
-        elif self.align == 2:
-            self.rect.right = self.right
     def change_color(self, color):
+        """Changes the font color of the sign.
+            If there is already text in a different color, rewrites the text.
+
+            Args:
+                color (list): list of RGB values of a color.
+        """
+        # Checking if the argument is correct.
+        if not (isinstance(lst, (list, tuple))) or (isinstance(lst, basestring)):
+            raise TypeError("Color type is {}, not tuple or\
+                    list".format(type(color)))
+        else:
+            if len(color) != 3:
+                raise ValueError("{} values given in the list,\
+                        3 expected".format(len(color)))
+            else:
+
+                if (self.color is not color) and (self.text is not None):
+                    self.image, self.rect = self.font.write_with_font(\
+                            self.text, fgcolor=self.color, size=self.size)
         self.color = color
 
-    def save_alignment(self):
+    def set_alignment(self, align):
+        self.align = align
         if self.align == 1:
             self.left = self.rect.left
         if self.align == 2:
