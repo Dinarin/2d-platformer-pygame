@@ -1,7 +1,9 @@
 def get_dicts(name):
     image_rows = {
         'p1_run_right': ((28,0), 2),  # rect, image count
-        'p2_run_right': ((28,3), 2)
+        'p2_run_right': ((28,3), 2),
+        'p1_jump_right': ((21,0), 1),
+        'p2_jump_right': ((21,3), 1)
             }
     images = {
         'p1_idle': [(19,0)],# list of tuples
@@ -17,11 +19,15 @@ def get_dicts(name):
             'player1': {
                 'run_left': 'p1_run_left',
                 'run_right': 'p1_run_right',
+                'jump_right': 'p1_jump_right',
+                'jump_left': 'p1_jump_left',
                 'idle': 'p1_idle'
                 },
             'player2': {
                 'run_left': 'p2_run_left',
                 'run_right': 'p2_run_right',
+                'jump_right': 'p2_jump_right',
+                'jump_left': 'p2_jump_left',
                 'idle': 'p2_idle'
                 },
             'ground_tile': {
