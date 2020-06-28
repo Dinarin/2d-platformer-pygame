@@ -13,6 +13,7 @@ from levels import tilesets as ts_
 def start_game():
     # Assigning necessary values to variables.
     # Setting number variables.
+    screen_resolution = (800, 800)
     resolution = (1008,1008)
     bg_color = (0,35,69)
     colorkey = (94,129,162)
@@ -54,7 +55,8 @@ def start_game():
     # Pygame begins.
     # Opening pygame window and writing window name.
     pygame.freetype.init()
-    screen = pygame.display.set_mode(resolution)
+    screen = pygame.display.set_mode(screen_resolution)
+    image = pygame.Surface(resolution)
     pygame.display.set_caption('Pygame platformer')
 
     # Loading background image and scaling it to resolution.
@@ -73,12 +75,15 @@ def start_game():
     ip.get_images(images)
     ip.flip('p1_run_right','p1_run_left')
     ip.flip('p2_run_right','p2_run_left')
+    ip.flip('p1_jump_right','p1_jump_left')
+    ip.flip('p2_jump_right','p2_jump_left')
     ip.zoom_dict(2)  # zooming _before_ animating
 
     # Generating animations images.
-    delay = 0.2
+    delay = 0.25
     animations_list = [
-            'p1_run_right','p1_run_left','p2_run_right','p2_run_left'
+            'p1_run_right','p1_run_left','p2_run_right','p2_run_left',
+            'p1_jump_right','p1_jump_left','p2_jump_right','p2_jump_left',
             ]
     for animation in animations_list:
         ip.animate(animation, delay)
@@ -141,18 +146,14 @@ def start_game():
     font = e_.GameFont()
     text_color = ((30, 167, 255), (255, 204, 0))   # blue and yellow
     text_color2 = (232, 106, 23)  # red
-    world.add_text(e_.GameText, (500, 500, 2, 2), font, text_color[0])
-    world.add_text(e_.GameText, (500, 500, 2, 2), font, text_color[1])
+    world.add_text(e_.GameText, (500, 500, 2, 2), font, text_color[0], align=1, size=16)
+    world.add_text(e_.GameText, (500, 500, 2, 2), font, text_color[1], align=2, size=16)
 
     text_sprites = e_.GameSpritesGroup(*world.texts)
 
-    world.texts[0].set_text('Player 1: {}'.format(player_dict[0].score), 1)
-    world.texts[0].rect.left = 8
-    world.texts[0].save_alignment()
+    world.texts[0].set_text('Player 1: {}'.format(player_dict[0].score))
 
-    world.texts[1].set_text('Player 2: {}'.format(player_dict[1].score), 2)
-    world.texts[1].rect.right = 1000
-    world.texts[1].save_alignment()
+    world.texts[1].set_text('Player 2: {}'.format(player_dict[1].score))
 
 
 
@@ -181,7 +182,7 @@ def start_game():
                 player.collect(bonuses_sprites)
                 # print('player {} score {}, place {}'.format(key, player.score, (player.rect.x, player.rect.y)))
                 event = player.global_events['game']
-                world.texts[p_id].change_text("Player {}: {}".format(p_id+1, player.score))
+                world.texts[p_id].set_text("Player {}: {}".format(p_id+1, player.score))
                 if event is not None:
                     if event == 'end':
                         result = world.check_scores()
@@ -200,14 +201,18 @@ def start_game():
 
         # Drawing all sprites on the display.
         # Clearing all sprites.
-        all_sprites.clear(screen, bg_image)
+        all_sprites.clear(image, bg_image)
 
         # Updating moving objects (only players).
         if not game_over:
             player_sprites.update()
 
         # Drawing all sprites.
-        changed_rects = all_sprites.draw(screen, bg_image)
+        changed_rects = all_sprites.draw(image, bg_image)
+
+        # Scaling the image down.
+        new_image = pygame.transform.smoothscale(image, screen_resolution)
+        screen.blit(new_image, (0,0))
 
         # Updating the display.
         pygame.display.update()
