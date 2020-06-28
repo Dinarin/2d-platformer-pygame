@@ -262,6 +262,31 @@ class GameText(GameObjects):
             self.rect.right = 1000
 
 
+class Menu(pygame.Surface):
+    def __init__(self, dimensions):
+        super().__init__(self,)
+
+class ButtonGroup(GameSpritesGroup):
+    def __init__(self, *buttons):
+        super().__init__(self, *buttons)
+
+    def __
+
+
+class Button(GameObject):
+    def __init__(self, rect):
+        """
+        """
+        super().__init__(rect)
+
+    def detect(self):
+
+    def activate(self):
+        pass
+
+
+
+
 #class StaticText(GameText):
 #
 #class DynamicText
