@@ -224,7 +224,7 @@ class GameText(GameObjects):
         self.set_alignment(self.align)
         self.text = text
 
-
+    @types_check()
     def change_color(self, color):
         """Changes the font color of the sign.
             If there is already text in a different color, rewrites the text.
@@ -232,19 +232,9 @@ class GameText(GameObjects):
             Args:
                 color (list): list of RGB values of a color.
         """
-        # Checking if the argument is correct.
-        if not (isinstance(lst, (list, tuple))) or (isinstance(lst, basestring)):
-            raise TypeError("Color type is {}, not tuple or\
-                    list".format(type(color)))
-        else:
-            if len(color) != 3:
-                raise ValueError("{} values given in the list,\
-                        3 expected".format(len(color)))
-            else:
-
-                if (self.color is not color) and (self.text is not None):
-                    self.image, self.rect = self.font.write_with_font(\
-                            self.text, fgcolor=self.color, size=self.size)
+        if (self.color is not color) and (self.text is not None):
+            self.image, self.rect = self.font.write_with_font(\
+                self.text, fgcolor=self.color, size=self.size)
         self.color = color
         self.set_alignment(self.align)
 
