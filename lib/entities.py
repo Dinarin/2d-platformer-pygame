@@ -233,18 +233,18 @@ class GameText(GameObjects):
                 color (list): list of RGB values of a color.
         """
         # Checking if the argument is correct.
-        if not (isinstance(lst, (list, tuple))) or (isinstance(lst, basestring)):
-            raise TypeError("Color type is {}, not tuple or\
-                    list".format(type(color)))
-        else:
-            if len(color) != 3:
-                raise ValueError("{} values given in the list,\
-                        3 expected".format(len(color)))
-            else:
-
-                if (self.color is not color) and (self.text is not None):
-                    self.image, self.rect = self.font.write_with_font(\
-                            self.text, fgcolor=self.color, size=self.size)
+#        if not (isinstance(color, (list, tuple))) or (isinstance(color, basestring)):
+#            raise TypeError("Color type is {}, not tuple or\
+#                    list".format(type(color)))
+#        else:
+#            if len(color) != 3:
+#                raise ValueError("{} values given in the list,\
+#                        3 expected".format(len(color)))
+#            else:
+#
+#                if (self.color is not color) and (self.text is not None):
+#                    self.image, self.rect = self.font.write_with_font(\
+#                            self.text, fgcolor=self.color, size=self.size)
         self.color = color
         self.set_alignment(self.align)
 
