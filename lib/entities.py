@@ -262,6 +262,12 @@ class GameText(GameObjects):
             self.rect.right = 1000
 
 
+class Button:
+    def __init__(self, rect):
+        """
+        """
+        print
+
 #class StaticText(GameText):
 #
 #class DynamicText
