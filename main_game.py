@@ -209,8 +209,11 @@ def start_game():
 
         # Drawing all sprites.
         changed_rects = all_sprites.draw(image, bg_image)
+
+        # Scaling the image down.
         new_image = pygame.transform.smoothscale(image, screen_resolution)
         screen.blit(new_image, (0,0))
+
         # Updating the display.
         pygame.display.update()
 
