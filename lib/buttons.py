@@ -101,7 +101,7 @@ if __name__ == "__main__":
                 is_running = False
             if event.type == pygame.USEREVENT:
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
-                    if event.ui_object_id == e_.w:
+                    if event.ui_object_id == '#start':
                         print("Start Game")
                     if event.ui_object_id == '#settings':
                         print("Settings")

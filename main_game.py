@@ -96,7 +96,7 @@ def start_game():
     menu_resolutions = [(210,300), (300,400), (400, 600)]
     resolution = (1008,1008)
     bg_color = (0,35,69)
-    spacing = 20
+    spacing = 5
 
     main_menu_b = {
             'start': 'Game Start',
@@ -148,7 +148,7 @@ def start_game():
 
     w_width, w_height = screen_resolution[0], screen_resolution[1]
     main_menu = e_.GameMenus((0, 0, *menu_resolution))
-    buttons1 = main_menu.create_button_area((0,0,5,5))
+    buttons1 = main_menu.create_button_area((0,0, menu_resolution[0], menu_resolution[1]))
     buttons1.center = main_view.rect.center
     active_windows = e_.GameSpritesGroup(main_menu)
     buttons1.create_buttons_col(main_menu_b, spacing)
