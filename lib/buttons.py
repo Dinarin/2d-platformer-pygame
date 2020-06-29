@@ -4,8 +4,6 @@ import pygame_gui
 # Rough current performance measure - Button creation time taken: 0.200 seconds.
 # (54 x rounded rectangles)
 
-
-
 class GameButton(pygame_gui.elements.UIButton):
     def __init__(self, r_rect, text, manager, b_id_name):
         """Creates game buttons.
@@ -19,6 +17,7 @@ class GameButton(pygame_gui.elements.UIButton):
                 b_id_name (str) button unique name
         """
         super().__init__(relative_rect=pygame.Rect(r_rect), text=text,manager=manager, object_id='#' + b_id_name)
+
 
 class MenuButtons(pygame.Rect):
     def __init__(self, rect, manager, p_surface):

@@ -93,7 +93,7 @@ def start_game():
     # Setting number variables.
     screen_resolutions = [(640,360), (1024,576), (1280,720)]
     game_resolutions = [(300, 300), (400, 400), (600,600)]
-    menu_resolutions = [(210,300), (300,400), (400, 500)]
+    menu_resolutions = [(210,300), (300,400), (400, 600)]
     resolution = (1008,1008)
     bg_color = (0,35,69)
     spacing = 20
@@ -133,7 +133,7 @@ def start_game():
     screen_info = pygame.display.Info()
     for s_res, g_res, m_res in zip(screen_resolutions, game_resolutions,
                                     menu_resolutions):
-        if (screen_info.current_h >= s_res[0]+60):
+        if (screen_info.current_h >= s_res[1]):
             screen_resolution = s_res
             game_resolution = g_res
             menu_resolution = m_res
@@ -176,7 +176,7 @@ def start_game():
 
         # Drawing all sprites.
         main_menu.manager.draw_ui(main_menu.image)
-        main_menu.debug()
+#        main_menu.debug()
         changed_rects = active_windows.draw(main_view.image, main_view.background)
 
         # Scaling the image down.
