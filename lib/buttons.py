@@ -1,6 +1,5 @@
 import pygame
 import pygame_gui
-from lib.entities import *
 
 # Rough current performance measure - Button creation time taken: 0.200 seconds.
 # (54 x rounded rectangles)
@@ -38,35 +37,42 @@ class GameButton(pygame_gui.elements.UIButton):
                     button manager
                 b_id_name (str) button unique name
         """
-        super().__init__(relative_rect=pygame.Rect(r_rect), text=text,
-                            manager=manager, object_id=b_id_name)
+        super().__init__(relative_rect=pygame.Rect(r_rect), text=text,manager=manager, object_id=b_id_name)
 
-
-def MenuButtons(pygame.Rect):
-    def __init__(self, rect):
+class MenuButtons(pygame.Rect):
+    def __init__(self, rect, manager):
         """Creates menu rectangles for GameButtons.
 
         """
-        self.buttons = []
-    def create_buttons_col(b_dict):
-        self.buttons.extend(b_dict.keys())
+        super().__init__(rect)
+
+        self.manager = manager
+        self.buttons = {}
+
+    def create_buttons_col(self, b_dict):
+        # Storing the dictionary.
+        self.buttons.update(b_dict)
+        b_ids = b_dict.keys()
+        b_names = b_dict.values()
+
+        # Getting the number of columns.
+        num_col = len(b_ids)
+
+        # Getting dimensions of columns.
         b_height = self.height/num_col
         b_width = self.width
         r_list = [(self.x, self.y + j * spacing + ((j - 1) * b_height),
-                    b_height, b_width) for j in range(1, num_col + 1)]
-        for t_rect in r_list:
-            GameButton(t_rect,
-                             str(1) + ',' + str(j),
-                             manager,
-                             str(1) + ',' + str(j))
+                    b_width, b_height) for j in range(1, num_col + 1)]
+        for t_rect, b_name, b_id in zip(r_list, b_names, b_ids):
+            GameButton(t_rect, b_name, self.manager, b_id)
 
-    def create_buttons_row(num,row, bg):
-        for j in range(1, num_row+1):
-            position = ((bg.get_width() - button_row_width)/2 , (j * spacing + ((j - 1) * button_row_height)))
-            GameButton((*position, button_row_width, button_row_height),
-                                 str(1) + ',' + str(j),
-                                 manager,
-                                 str(1) + ',' + str(j))
+#    def create_buttons_row(num,row, bg):
+#        for j in range(1, num_row+1):
+#            position = ((bg.get_width() - button_row_width)/2 , (j * spacing + ((j - 1) * button_row_height)))
+#            GameButton((*position, button_row_width, button_row_height),
+#                                 str(1) + ',' + str(j),
+#                                 manager,
+#                                 str(1) + ',' + str(j))
 
 
 #def GameMenus(pygame.sprite.DirtySprite):
@@ -77,13 +83,15 @@ def MenuButtons(pygame.Rect):
 #        
 main_menu_b = {
         'start': 'Game Start',
-        'settings': 'Settings'
+        'settings': 'Settings',
+        'quit': 'Exit'
         }
 
+rectangle = pygame.Rect((300, 10, 400, 200))
+a = MenuButtons(rectangle, manager)
+a.create_buttons_col(main_menu_b)
 
 
-
-create_buttons_col(4, background)
 load_time_2 = clock.tick()
 print('Button creation time taken:', load_time_2/1000.0, 'seconds.')
 
