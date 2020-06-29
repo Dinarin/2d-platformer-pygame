@@ -171,7 +171,7 @@ class LevelImages:
         """
         return self.obj_dict[obj]
 
-class GameScreen(pygame.sprite.Sprite):
+class GameScreen(pygame.sprite.DirtySprite):
     """Class for game screen surface.
         Args:
             dimensions (tup): (width, height)
@@ -179,6 +179,7 @@ class GameScreen(pygame.sprite.Sprite):
     def __init__(self, dimensions):
         super().__init__()
         self.image = pygame.Surface(dimensions)
+        self.rect = self.image.get_rect()
         self.background = None
 
     def set_bg_color(self, color):

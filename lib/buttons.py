@@ -69,7 +69,6 @@ if __name__ == "__main__":
     # Setting string variables.
     theme_path = './lib/buttons.json'
 
-    manager = pygame_gui.UIManager((800, 600), theme_path)
     clock = pygame.time.Clock()
 
     background = pygame.Surface((800, 600))

@@ -11,18 +11,12 @@ from lib import entities as e_
 from levels import tilesets as ts_
 
 
-def start_game():
-    # Assigning necessary values to variables.
-    # Setting number variables.
-    screen_resolutions = [(300, 300), (400, 400), (600,600), (800, 800), (1008,1008)]
-    resolution = (1008,1008)
-    bg_color = (0,35,69)
+
+def load_images():
     colorkey = (94,129,162)
     tile_dim = (21,21)
-    map_dim = (24,24)  # level map dimensions
     gap = 2
     border = 2
-    game_over = False
 
     # Setting string variables.
     bg_path = './images/background.png'
@@ -33,54 +27,10 @@ def start_game():
     bg_f_path = os.path.join(dirname, bg_path)
     img_f_path = os.path.join(dirname, img_path)
 
-    # Setting dictionaries with player controls.
-    controls = [{
-            'left': pygame.K_a,
-            'right': pygame.K_d,
-            'up': pygame.K_w,
-            'down': pygame.K_s
-            },
-            {
-            'left': pygame.K_LEFT,
-            'right': pygame.K_RIGHT,
-            'up': pygame.K_UP,
-            'down': pygame.K_DOWN
-            }]
-
     # Loading tilesets dictionaries from file.
     images = ts_.get_dicts('img')
     image_rows = ts_.get_dicts('rows')
     lvl_img = ts_.get_dicts('level')
-
-
-    # Pygame begins.
-    # Opening pygame window and writing window name.
-    pygame.freetype.init()
-
-    # Initializing display and checking acceptable resolutions.
-    pygame.display.init()
-    screen_resolution = None
-    screen_info = pygame.display.Info()
-    for res in screen_resolutions:
-        if (screen_info.current_h >= res[0]+100):
-            screen_resolution = res
-    if screen_resolution is None:
-        raise Exception(("Screen resolution {}×{} px is too "\
-                "small.".format(screen_info.current_w, screen_info.current_h)))
-
-    # Creating window.
-    screen = pygame.display.set_mode(screen_resolution)
-    game_view = vi_.GameScreen(resolution)
-    pygame.display.set_caption('Pygame platformer')
-
-    # Loading background image and scaling it to resolution.
-    bg_image_small = pygame.image.load(bg_f_path)
-    bg_image = pygame.transform.scale(bg_image_small, resolution)
-    game_view.set_bg_image(bg_image)
-
-    # Creating pygame clock object.
-    clock = pygame.time.Clock()
-
 
     # Generating images for the game.
     # Loading images from spritesheet.
@@ -103,6 +53,148 @@ def start_game():
         ip.animate(animation, delay)
     new_images = ip.modified
 
+def game_update():
+    # Cycling through players.
+    if not game_over:
+        for p_id in player_dict:
+            player=player_dict[p_id]
+            player.collect(bonuses_sprites)
+            # print('player {} score {}, place {}'.format(key, player.score, (player.rect.x, player.rect.y)))
+            event = player.global_events['game']
+            world.texts[p_id].set_text("Player {}: {}".format(p_id+1, player.score))
+            if event is not None:
+                if event == 'end':
+                    result = world.check_scores()
+                    world.add_text(e_.GameText, (500, 500, 2, 2), font, text_color2, size=32)
+                    result_text = world.texts[2]
+                    if result == 0:
+                        result_text.set_text("It's a draw!")
+                    else:
+                        result_text.change_color(text_color[p_id])
+                        result_text.set_text("Player {} wins".format(result))
+                    result_text.rect.center = (504,504)
+
+                    all_sprites.add(world.texts[2])
+                    game_over = True
+                    break
+
+def sprites_update():
+    if not game_over:
+            player_sprites.update()
+
+
+def get_player_keys():
+    for p_id in player_dict:
+        player = player_dict[p_id]
+        player.get_keys(e)
+
+def start_game():
+    # Assigning necessary values to variables.
+    # Setting number variables.
+    screen_resolutions = [(640,360), (1024,576), (1280,720)]
+    game_resolutions = [(300, 300), (400, 400), (600,600)]
+    menu_resolutions = [(210,300), (300,400), (400, 500)]
+    resolution = (1008,1008)
+    bg_color = (0,35,69)
+    spacing = 20
+
+    main_menu_b = {
+            'start': 'Game Start',
+            'settings': 'Settings',
+            'quit': 'Exit'
+            }
+
+    # Setting dictionaries with player controls.
+    controls = [{
+            'left': pygame.K_a,
+            'right': pygame.K_d,
+            'up': pygame.K_w,
+            'down': pygame.K_s
+            },
+            {
+            'left': pygame.K_LEFT,
+            'right': pygame.K_RIGHT,
+            'up': pygame.K_UP,
+            'down': pygame.K_DOWN
+            }]
+
+    # Pygame begins.
+    # Opening pygame window and writing window name.
+    pygame.init()
+
+    pygame.display.init()
+    pygame.freetype.init()
+
+    # Initializing display and setting caption.    pygame.display.init()
+    pygame.display.set_caption('Pygame platformer')
+
+    # Checking acceptable resolutions.
+    screen_resolution = None
+    screen_info = pygame.display.Info()
+    for s_res, g_res, m_res in zip(screen_resolutions, game_resolutions,
+                                    menu_resolutions):
+        if (screen_info.current_h >= s_res[0]+60):
+            screen_resolution = s_res
+            game_resolution = g_res
+            menu_resolution = m_res
+    if screen_resolution is None:
+        raise Exception(("Screen resolution {}×{} px is too "\
+                "small.".format(screen_info.current_w, screen_info.current_h)))
+
+    # Creating window.
+    screen = pygame.display.set_mode(screen_resolution)
+    main_view = vi_.GameScreen(screen_resolution)
+    main_view.set_bg_color((100,0,100))
+
+    w_width, w_height = screen_resolution[0], screen_resolution[1]
+    main_menu = e_.GameMenus((0, 0, *menu_resolution))
+    buttons1 = main_menu.create_button_area((0,0,5,5))
+    buttons1.center = main_view.rect.center
+    active_windows = e_.GameSpritesGroup(main_menu)
+    buttons1.create_buttons_col(main_menu_b, spacing)
+
+    # Creating pygame clock object.
+    clock = pygame.time.Clock()
+    is_running = True
+    # Game starts.
+    while is_running:
+        # Counting time between frames.
+        time_passed = clock.tick(30)/1000.0
+
+        # Event handling.
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
+                is_running = False
+            # if game is running
+#            get_player_keys()
+            main_menu.manager.process_events(e)
+        main_menu.manager.update(time_passed)
+
+        # Drawing all sprites on the display.
+        # Clearing all sprites.
+        active_windows.clear(main_view.image, main_view.background)
+
+        # Drawing all sprites.
+        main_menu.manager.draw_ui(main_menu.image)
+        main_menu.debug()
+        changed_rects = active_windows.draw(main_view.image, main_view.background)
+
+        # Scaling the image down.
+        new_image = pygame.transform.smoothscale(main_view.image, screen_resolution)
+        screen.blit(new_image, (0,0))
+
+        # Updating the display.
+        pygame.display.update()
+
+def start_level(resolution, l_num=1):
+    game_view = vi_.GameScreen(resolution)
+    game_over = False
+    map_dim = (24,24)  # level map dimensions
+
+    # Loading background image and scaling it to resolution.
+    bg_image_small = pygame.image.load(bg_f_path)
+    bg_image = pygame.transform.scale(bg_image_small, resolution)
+    game_view.set_bg_image(bg_image)
 
     # Generating level data from maps and images.
     li = vi_.LevelImages(new_images, lvl_img, *ip.return_zoom_param())
@@ -174,61 +266,5 @@ def start_game():
     # Creating groups containing sprites from different groups.
     all_sprites = e_.GameSpritesGroup(*text_sprites.sprites(), *player_sprites.sprites(), *tiles_sprites.sprites(), *bonuses_sprites.sprites())
     non_player_sprites = e_.GameSpritesGroup(*tiles_sprites.sprites(), *text_sprites.sprites(), *bonuses_sprites.sprites())
-
-
-    # Game starts.
-    while True:
-        # Counting time between frames.
-        time_passed = clock.tick(30)
-
-        # Event handling.
-        for e in pygame.event.get():
-            if e.type == pygame.QUIT:
-                sys.exit()
-            for p_id in player_dict:
-                player = player_dict[p_id]
-                player.get_keys(e)
-
-        # Cycling through players.
-        if not game_over:
-            for p_id in player_dict:
-                player=player_dict[p_id]
-                player.collect(bonuses_sprites)
-                # print('player {} score {}, place {}'.format(key, player.score, (player.rect.x, player.rect.y)))
-                event = player.global_events['game']
-                world.texts[p_id].set_text("Player {}: {}".format(p_id+1, player.score))
-                if event is not None:
-                    if event == 'end':
-                        result = world.check_scores()
-                        world.add_text(e_.GameText, (500, 500, 2, 2), font, text_color2, size=32)
-                        result_text = world.texts[2]
-                        if result == 0:
-                            result_text.set_text("It's a draw!")
-                        else:
-                            result_text.change_color(text_color[p_id])
-                            result_text.set_text("Player {} wins".format(result))
-                        result_text.rect.center = (504,504)
-
-                        all_sprites.add(world.texts[2])
-                        game_over = True
-                        break
-
-        # Drawing all sprites on the display.
-        # Clearing all sprites.
-        all_sprites.clear(game_view.image, game_view.background)
-
-        # Updating moving objects (only players).
-        if not game_over:
-            player_sprites.update()
-
-        # Drawing all sprites.
-        changed_rects = all_sprites.draw(game_view.image, game_view.background)
-
-        # Scaling the image down.
-        new_image = pygame.transform.smoothscale(game_view.image, screen_resolution)
-        screen.blit(new_image, (0,0))
-
-        # Updating the display.
-        pygame.display.update()
 
 start_game()

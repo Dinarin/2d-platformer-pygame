@@ -1,4 +1,5 @@
 import pygame
+import pygame_gui
 import sys
 import os
 from lib import visual as vi_
@@ -180,14 +181,16 @@ class GameMenus(GameObjects):
 
         Arguments:
     """
-    def __init__(self, rect, manager):
+    theme_path=''
+    def __init__(self, rect):
         super().__init__(rect)
         self.b_areas = []
-        self.manager = manager
+        self.manager = pygame_gui.UIManager((self.rect.width, self.rect.height))  # theme path
 
     def create_button_area(self, rect):
         b_area = b_.MenuButtons(rect, self.manager, self.image)
         self.b_areas.append(b_area)
+        return b_area
 
     def debug(self):
         # blit menus on self.
