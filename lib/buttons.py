@@ -1,5 +1,6 @@
 import pygame
 import pygame_gui
+from lib.entities import *
 
 # Rough current performance measure - Button creation time taken: 0.200 seconds.
 # (54 x rounded rectangles)
@@ -25,16 +26,30 @@ load_time_1 = clock.tick()
 button_row_width = 200
 button_row_height = 50
 spacing = 20
-def create_buttons_col(col_len, bg):
-    for j in range(1, 10):
-        position = ((bg.get_width() - button_row_width)/2 , (j * spacing + ((j - 1) * button_row_height)))
-        pygame_gui.elements.UIButton(relative_rect=pygame.Rect(position,
-                                                           (button_row_width,
-                                                            button_row_height)),
-                                 text=str(1) + ',' + str(j),
-                                 manager=manager,
-                                 object_id='#' + str(1) + ',' + str(j))
+class GameButton(pygame_gui.elements.UIButton):
+    def __init__(self, r_rect, text, manager, b_id_name):
+        """Creates game buttons.
 
+            Arguments:
+                r_rect (tup): (relative_x, relative_y,
+                                width, height).
+                text (str): button text.
+                manager (:obj: pygame_gui.UIManager):
+                    button manager
+                b_id_name (str) button id without '#'
+        """
+        super().__init__(relative_rect=pygame.Rect(r_rect), text=text,
+                                manager=manager, object_id='#' + b_id_name)
+
+def create_buttons_col(col_len, bg):
+    for j in range(1, col_len+1):
+        position = ((bg.get_width() - button_row_width)/2 , (j * spacing + ((j - 1) * button_row_height)))
+        GameButton((*position, button_row_width, button_row_height),
+                             str(1) + ',' + str(j),
+                             manager,
+                             str(1) + ',' + str(j))
+
+def GameMenus(pygame.sprite.DirtySprite)
 create_buttons_col(4, background)
 load_time_2 = clock.tick()
 print('Button creation time taken:', load_time_2/1000.0, 'seconds.')
