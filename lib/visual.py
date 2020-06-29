@@ -230,3 +230,6 @@ if __name__ == "__main__":
                 pygame.display.update()
 
         pygame.display.update()
+
+class GameScreen(pygame.Surface):
+    
