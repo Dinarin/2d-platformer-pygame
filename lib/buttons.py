@@ -49,7 +49,10 @@ def create_buttons_col(col_len, bg):
                              manager,
                              str(1) + ',' + str(j))
 
-def GameMenus(pygame.sprite.DirtySprite)
+def GameMenus(pygame.sprite.DirtySprite):
+    def __init__(self, )
+
+
 create_buttons_col(4, background)
 load_time_2 = clock.tick()
 print('Button creation time taken:', load_time_2/1000.0, 'seconds.')
