@@ -14,6 +14,7 @@ from levels import tilesets as ts_
 def start_game():
     # Assigning necessary values to variables.
     # Setting number variables.
+    screen_resolutions = [(300, 300), (400, 400), (600,600), (800, 800), (1008,1008)]
     resolution = (1008,1008)
     bg_color = (0,35,69)
     colorkey = (94,129,162)
@@ -55,7 +56,21 @@ def start_game():
     # Pygame begins.
     # Opening pygame window and writing window name.
     pygame.freetype.init()
-    screen = pygame.display.set_mode(resolution)
+
+    # Initializing display and checking acceptable resolutions.
+    pygame.display.init()
+    screen_resolution = None
+    screen_info = pygame.display.Info()
+    for res in screen_resolutions:
+        if (screen_info.current_h >= res[0]+100):
+            screen_resolution = res
+    if screen_resolution is None:
+        raise Exception(("Screen resolution {}×{} px is too "\
+                "small.".format(screen_info.current_w, screen_info.current_h)))
+
+    # Creating window.
+    screen = pygame.display.set_mode(screen_resolution)
+    image = pygame.Surface(resolution)
     pygame.display.set_caption('Pygame platformer')
 
     # Loading background image and scaling it to resolution.
@@ -145,8 +160,8 @@ def start_game():
     font = e_.GameFont()
     text_color = ((30, 167, 255), (255, 204, 0))   # blue and yellow
     text_color2 = (232, 106, 23)  # red
-    world.add_text(e_.GameText, (500, 500, 2, 2), font, text_color[0], align=1)
-    world.add_text(e_.GameText, (500, 500, 2, 2), font, text_color[1], align=2)
+    world.add_text(e_.GameText, (500, 500, 2, 2), font, text_color[0], align=1, size=16)
+    world.add_text(e_.GameText, (500, 500, 2, 2), font, text_color[1], align=2, size=16)
 
     text_sprites = e_.GameSpritesGroup(*world.texts)
 
@@ -200,14 +215,18 @@ def start_game():
 
         # Drawing all sprites on the display.
         # Clearing all sprites.
-        all_sprites.clear(screen, bg_image)
+        all_sprites.clear(image, bg_image)
 
         # Updating moving objects (only players).
         if not game_over:
             player_sprites.update()
 
         # Drawing all sprites.
-        changed_rects = all_sprites.draw(screen, bg_image)
+        changed_rects = all_sprites.draw(image, bg_image)
+
+        # Scaling the image down.
+        new_image = pygame.transform.smoothscale(image, screen_resolution)
+        screen.blit(new_image, (0,0))
 
         # Updating the display.
         pygame.display.update()
