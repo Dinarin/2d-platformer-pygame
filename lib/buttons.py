@@ -36,36 +36,50 @@ class GameButton(pygame_gui.elements.UIButton):
                 text (str): button text.
                 manager (:obj: pygame_gui.UIManager):
                     button manager
-                b_id_name (str) button id without '#'
+                b_id_name (str) button unique name
         """
         super().__init__(relative_rect=pygame.Rect(r_rect), text=text,
-                                manager=manager, object_id='#' + b_id_name)
+                            manager=manager, object_id=b_id_name)
 
 
-def GameMenus(pygame.sprite.DirtySprite):
-    """Class for game menus.
+def MenuButtons(pygame.Rect):
+    def __init__(self, rect):
+        """Creates menu rectangles for GameButtons.
 
-    """
-    def __init__(self, b_dict):
-
-
-def Buttons()
-
-    def create_buttons_col(col_len, bg):
-    for j in range(1, col_len+1):
-        position = ((bg.get_width() - button_row_width)/2 , (j * spacing + ((j - 1) * button_row_height)))
-        GameButton((*position, button_row_width, button_row_height),
+        """
+        self.buttons = []
+    def create_buttons_col(b_dict):
+        self.buttons.extend(b_dict.keys())
+        b_height = self.height/num_col
+        b_width = self.width
+        r_list = [(self.x, self.y + j * spacing + ((j - 1) * b_height),
+                    b_height, b_width) for j in range(1, num_col + 1)]
+        for t_rect in r_list:
+            GameButton(t_rect,
                              str(1) + ',' + str(j),
                              manager,
                              str(1) + ',' + str(j))
 
-    def create_buttons_row(col_len, bg):
-        for j in range(1, col_len+1):
+    def create_buttons_row(num,row, bg):
+        for j in range(1, num_row+1):
             position = ((bg.get_width() - button_row_width)/2 , (j * spacing + ((j - 1) * button_row_height)))
             GameButton((*position, button_row_width, button_row_height),
                                  str(1) + ',' + str(j),
                                  manager,
                                  str(1) + ',' + str(j))
+
+
+#def GameMenus(pygame.sprite.DirtySprite):
+#    """Class for game menus.
+#
+#    """
+#    def __init__(self, b_dict):
+#        
+main_menu_b = {
+        'start': 'Game Start',
+        'settings': 'Settings'
+        }
+
 
 
 
