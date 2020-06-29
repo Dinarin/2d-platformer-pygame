@@ -70,13 +70,13 @@ def start_game():
 
     # Creating window.
     screen = pygame.display.set_mode(screen_resolution)
-    image = pygame.Surface(resolution)
+    game_view = vi_.GameScreen(resolution)
     pygame.display.set_caption('Pygame platformer')
 
     # Loading background image and scaling it to resolution.
     bg_image_small = pygame.image.load(bg_f_path)
     bg_image = pygame.transform.scale(bg_image_small, resolution)
-    screen.blit(bg_image, (0,0))
+    game_view.set_bg_image(bg_image)
 
     # Creating pygame clock object.
     clock = pygame.time.Clock()
@@ -215,17 +215,17 @@ def start_game():
 
         # Drawing all sprites on the display.
         # Clearing all sprites.
-        all_sprites.clear(image, bg_image)
+        all_sprites.clear(game_view.image, game_view.background)
 
         # Updating moving objects (only players).
         if not game_over:
             player_sprites.update()
 
         # Drawing all sprites.
-        changed_rects = all_sprites.draw(image, bg_image)
+        changed_rects = all_sprites.draw(game_view.image, game_view.background)
 
         # Scaling the image down.
-        new_image = pygame.transform.smoothscale(image, screen_resolution)
+        new_image = pygame.transform.smoothscale(game_view.image, screen_resolution)
         screen.blit(new_image, (0,0))
 
         # Updating the display.

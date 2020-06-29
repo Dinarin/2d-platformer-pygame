@@ -171,7 +171,23 @@ class LevelImages:
         """
         return self.obj_dict[obj]
 
+class GameScreen(pygame.sprite.Sprite):
+    """Class for game screen surface.
+        Args:
+            dimensions (tup): (width, height)
+    """
+    def __init__(self, dimensions):
+        super().__init__()
+        self.image = pygame.Surface(dimensions)
+        self.background = None
 
+    def set_bg_color(self, color):
+        self.image.fill(color)
+        self.background = self.image.copy()
+
+    def set_bg_image(self, image):
+        self.image.blit(image, (0, 0))
+        self.background = self.image.copy()
 
 
 if __name__ == "__main__":
@@ -230,6 +246,3 @@ if __name__ == "__main__":
                 pygame.display.update()
 
         pygame.display.update()
-
-class GameScreen(pygame.Surface):
-    
