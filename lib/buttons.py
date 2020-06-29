@@ -22,20 +22,20 @@ background.fill(manager.get_theme().get_colour('dark_bg'))
 
 load_time_1 = clock.tick()
 
-button_row_width = 100
-button_row_height = 40
+button_row_width = 200
+button_row_height = 50
 spacing = 20
-def create_buttons_col(col_len):
-    for j in range(1, col_len+1):
-        position = (,
-                    (j * spacing + ((j - 1) * button_row_height)))
+def create_buttons_col(col_len, bg):
+    for j in range(1, 10):
+        position = ((bg.get_width() - button_row_width)/2 , (j * spacing + ((j - 1) * button_row_height)))
         pygame_gui.elements.UIButton(relative_rect=pygame.Rect(position,
-                                                               (button_row_width,
-                                                                button_row_height)),
-                                     text=str(i) + ',' + str(j),
-                                     manager=manager,
-                                     object_id='#' + str(i) + ',' + str(j))
+                                                           (button_row_width,
+                                                            button_row_height)),
+                                 text=str(1) + ',' + str(j),
+                                 manager=manager,
+                                 object_id='#' + str(1) + ',' + str(j))
 
+create_buttons_col(4, background)
 load_time_2 = clock.tick()
 print('Button creation time taken:', load_time_2/1000.0, 'seconds.')
 
