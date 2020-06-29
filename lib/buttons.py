@@ -41,7 +41,17 @@ class GameButton(pygame_gui.elements.UIButton):
         super().__init__(relative_rect=pygame.Rect(r_rect), text=text,
                                 manager=manager, object_id='#' + b_id_name)
 
-def create_buttons_col(col_len, bg):
+
+def GameMenus(pygame.sprite.DirtySprite):
+    """Class for game menus.
+
+    """
+    def __init__(self, b_dict):
+
+
+def Buttons()
+
+    def create_buttons_col(col_len, bg):
     for j in range(1, col_len+1):
         position = ((bg.get_width() - button_row_width)/2 , (j * spacing + ((j - 1) * button_row_height)))
         GameButton((*position, button_row_width, button_row_height),
@@ -49,8 +59,14 @@ def create_buttons_col(col_len, bg):
                              manager,
                              str(1) + ',' + str(j))
 
-def GameMenus(pygame.sprite.DirtySprite):
-    def __init__(self, )
+    def create_buttons_row(col_len, bg):
+        for j in range(1, col_len+1):
+            position = ((bg.get_width() - button_row_width)/2 , (j * spacing + ((j - 1) * button_row_height)))
+            GameButton((*position, button_row_width, button_row_height),
+                                 str(1) + ',' + str(j),
+                                 manager,
+                                 str(1) + ',' + str(j))
+
 
 
 create_buttons_col(4, background)
