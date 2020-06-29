@@ -6,6 +6,7 @@ from lib import vector as v_
 from lib import spritesheetgaps as sp_
 from lib import pyganim as anim_
 from lib import levels as l_
+from lib import meta
 from lib import entities as e_
 from levels import tilesets as ts_
 

@@ -119,12 +119,12 @@ class GameObjects(pygame.sprite.DirtySprite):
         """
         super().__init__()
 
-        #DirtySprite attributes
+        # Setting DirtySprite attributes.
         self.dirty = 2
         self.visible = 1
 
 
-        # Setting sprite attributes
+        # Setting sprite attributes.
         self.rect = pygame.Rect(rect)
         self.image = pygame.Surface((self.rect.width, self.rect.height))
         self.colorkey = (94,129,162)
@@ -224,7 +224,6 @@ class GameText(GameObjects):
         self.set_alignment(self.align)
         self.text = text
 
-    @types_check()
     def change_color(self, color):
         """Changes the font color of the sign.
             If there is already text in a different color, rewrites the text.
@@ -252,28 +251,31 @@ class GameText(GameObjects):
             self.rect.right = 1000
 
 
-class Menu(pygame.Surface):
-    def __init__(self, dimensions):
-        super().__init__(self,)
+#class Menu(pygame.Surface):
+#    def __init__(self, dimensions):
+#        super().__init__(self,)
+#
+#class ButtonGroup(GameSpritesGroup):
+#    def __init__(self, *buttons):
+#        super().__init__(self, *buttons)
+#
+#    def __
 
-class ButtonGroup(GameSpritesGroup):
-    def __init__(self, *buttons):
-        super().__init__(self, *buttons)
 
-    def __
-
-
-class Button(GameObject):
+class Button(GameObjects):
     def __init__(self, rect):
-        """
+        """Parent class for pygame buttons.
         """
         super().__init__(rect)
+        pygame.draw.rect(self.image, (0,0,0), self.rect)
 
     def detect(self):
-
+        pass
     def activate(self):
         pass
 
+    def update(self):
+        pass
 
 
 
@@ -573,12 +575,7 @@ class StaticBonus(GameEntities):
         self.image = img_dict[self.bonus_list[0]][0]
         self.active = True
 
-#class LandscapeGroup(GameSpritesGroup):
-#
-#    def __init__(self, *sprites):
-#        # constructor
-#        super().__init__(self, *sprites)
-#
+
 class ItemGroup(GameSpritesGroup):
 
     def __init__(self, *sprites):
@@ -589,155 +586,164 @@ class ItemGroup(GameSpritesGroup):
     def count_visible(self):
         self.visible_count = len(self.sprites())
 
-#class PlayersGroup(GameSpritesGroup):
-#
-#    def __init__(self, *sprites):
-#        # constructor
-#        super().__init__(self, *sprites)
-#
-#class EnemiesGroup(GameSpritesGroup):
-#
-#    def __init__(self, *sprites):
-#        # constructor
-#        super().__init__(self, *sprites)
-
 
 if __name__ == "__main__":
-    # Open window
+    # Assigning necessary values to variables.
+    # Setting number variables.
     resolution = (1008,1008)
     bg_color = (0,35,69)
     colorkey = (94,129,162)
-    screen = pygame.display.set_mode(resolution)
-    pygame.display.set_caption('Pygame platformer')
-
-    # Loading background
-    bg_path = '../images/background.png'
-    dirname = os.path.dirname(__file__)
-    filename = os.path.join(dirname, bg_path)
-
-    bg_image_small = pygame.image.load(filename)
-    bg_image = pygame.transform.scale(bg_image_small, resolution)
-#    bg_image.fill(bg_color)
-    screen.blit(bg_image, (0,0))
-    # Clock
-    clock = pygame.time.Clock()
-
-    # images_dict have rects from imagefile and the keys are added as the spritegroup
-    img_path = '../images/spritesheet_by_kenney_nl.png'
-    dirname = os.path.dirname(__file__)
-    filename = os.path.join(dirname, img_path)
-
-
-    # Get images file and put name on images
-    tile_size = (21,21)
+    tile_dim = (21,21)
+    map_dim = (24,24)  # level map dimensions
     gap = 2
     border = 2
-    image_rows = {
-            'p1_run_right': ((2,0), 2),  # rect, image count
-            'p2_run_right': ((2,3), 2)
-    }
-    images = {
-         'p1_idle': [(20,0)],# list of tuples
-         'p2_idle': [(20,3)]
-        }
-    lvl_img = {
-        'player1': {
-            'run_left': 'p1_run_left',
-            'run_right': 'p1_run_right',
-            'idle': 'p1_idle'
-            },
-        'player2': {
-            'run_left': 'p2_run_left',
-            'run_right': 'p2_run_right',
-            'idle': 'p2_idle'
-            }
-    }
+    game_over = False
 
-    # controls dicts
+    # Setting string variables.
+    bg_path = '../images/background.png'
+    img_path = '../images/spritesheet_by_kenney_nl.png'
+
+    # Finding full paths to image files no matter what folder we are in.
+    dirname = os.path.dirname(__file__)
+    bg_f_path = os.path.join(dirname, bg_path)
+    img_f_path = os.path.join(dirname, img_path)
+
+    # Setting dictionaries with player controls.
     controls = [{
-            'left': pygame.K_LEFT,
-            'right': pygame.K_RIGHT,
-            'up': pygame.K_UP,
-            'down': pygame.K_DOWN
-            },
-            {
             'left': pygame.K_a,
             'right': pygame.K_d,
             'up': pygame.K_w,
             'down': pygame.K_s
-            }
-            ]
+            },
+            {
+            'left': pygame.K_LEFT,
+            'right': pygame.K_RIGHT,
+            'up': pygame.K_UP,
+            'down': pygame.K_DOWN
+            }]
 
+    # Loading tilesets dictionaries from file.
     images = ts_.get_dicts('img')
     image_rows = ts_.get_dicts('rows')
     lvl_img = ts_.get_dicts('level')
-    # Loading images from spritesheet
-    ip = vi_.ImagePicker(filename, tile_size, gap, border, colorkey=colorkey)
+
+
+    # Pygame begins.
+    # Opening pygame window and writing window name.
+    pygame.freetype.init()
+    screen = pygame.display.set_mode(resolution)
+    pygame.display.set_caption('Pygame platformer')
+
+    # Loading background image and scaling it to resolution.
+    bg_image_small = pygame.image.load(bg_f_path)
+    bg_image = pygame.transform.scale(bg_image_small, resolution)
+    screen.blit(bg_image, (0,0))
+
+    # Creating pygame clock object.
+    clock = pygame.time.Clock()
+
+
+    # Generating images for the game.
+    # Loading images from spritesheet.
+    ip = vi_.ImagePicker(img_f_path, tile_dim, gap, border, colorkey=colorkey)
     ip.get_strips(image_rows)
     ip.get_images(images)
     ip.flip('p1_run_right','p1_run_left')
     ip.flip('p2_run_right','p2_run_left')
-    # zooming before animating
-    ip.zoom_dict(2)
+    ip.flip('p1_jump_right','p1_jump_left')
+    ip.flip('p2_jump_right','p2_jump_left')
+    ip.zoom_dict(2)  # zooming _before_ animating
 
-    # animations
-    delay = 1.0
+    # Generating animations images.
+    delay = 0.25
     animations_list = [
-            'p1_run_right','p1_run_left','p2_run_right','p2_run_left'
+            'p1_run_right','p1_run_left','p2_run_right','p2_run_left',
+            'p1_jump_right','p1_jump_left','p2_jump_right','p2_jump_left',
             ]
     for animation in animations_list:
         ip.animate(animation, delay)
     new_images = ip.modified
 
-    li = vi_.LevelImages(new_images, lvl_img, *ip.return_zoom_param())
 
-    # Building level 0
-    dim = (24,24)
-    Level0 = l_.LevelData(dim, li)
-    Level0.load_map(0)
-    Level0.parse_map()
-    world = World(Level0)
+    # Generating level data from maps and images.
+    li = vi_.LevelImages(new_images, lvl_img, *ip.return_zoom_param())
+    Level = l_.LevelData(map_dim, li)
+
+    # Creating level data object
+    # reading level number from command line
+    lvl_num = '1'
+    if (len(sys.argv) == 2) and (sys.argv[1].isnumeric()):
+        if sys.argv[1] in Level.valid_maps:
+            lvl_num = sys.argv[1]
+        else:
+            raise Exception("No valid level numbered {}".format(sys.argv[1]))
+
+    # Loading map.
+    Level.load_map(lvl_num)
+    Level.parse_map()
+
+
+    # Generating world. Adding objects.
+    world = World(Level)
     world.add_players(['player1','player2'])
     world.add_entities(StaticBonus, 'bonus')
-    world.add_tiles('floating_tile', 'grass')
-    world.add_tiles('ground_tile', 'grass')
-
-    # Adding objects not present in world:
+    world.add_tiles('floating_tile', 'snow')
+    world.add_tiles('ground_tile', 'snow')
     game_border = GameBorders((0,0,*resolution))
 
-    # SpritesGroup setup
-    player_sprites = GameSpritesGroup()
-    bonuses_sprites = ItemGroup()
-    tiles_sprites = GameSpritesGroup()
 
-    player_dict = world.get_players()
+    # Adding objects to sprites groups.
+    # Adding bonuses sprites to group.
     bonuses_dict = world.get_entities()
-    tiles_list = world.get_tiles()
-    i = 0
+    bonuses_sprites = ItemGroup()
     for e_id in bonuses_dict:
         bonus = bonuses_dict[e_id]
         bonuses_sprites.add_sprite(bonus)
-    # all bonuses sprites are in the group
+    # All bonuses sprites are in the group, can count how much there are.
     bonuses_sprites.count_visible()
 
-    for tile in tiles_list:
-        tiles_sprites.add_sprite(tile)
+    # Adding tiles sprites to group.
+    tiles_list = world.get_tiles()
+    tiles_sprites = GameSpritesGroup(*tiles_list)
+
+    # Adding player sprites to group.
+    # Player 1 has p_id = 0.
+    # Player 2 has p_id = 1.
+    player_dict = world.get_players()
+    player_sprites = GameSpritesGroup()
     for p_id in player_dict:
         player=player_dict[p_id]
-        player.set_controls(controls[i])
+        player.set_controls(controls[p_id])
         player.set_colliding_list(game_border, tiles_sprites, player_sprites)
         player_sprites.add_sprite(player)
-        i+=1
 
-    all_sprites = GameSpritesGroup(*player_sprites.sprites(), *tiles_sprites.sprites(), *bonuses_sprites.sprites())
-    non_player_sprites = GameSpritesGroup(*tiles_sprites.sprites(), *bonuses_sprites.sprites())
+    # Adding text sprites.
+    font = GameFont()
+    text_color = ((30, 167, 255), (255, 204, 0))   # blue and yellow
+    text_color2 = (232, 106, 23)  # red
+    world.add_text(GameText, (500, 500, 2, 2), font, text_color[0], align=1)
+    world.add_text(GameText, (500, 500, 2, 2), font, text_color[1], align=2)
 
-    # Game cycle
+    text_sprites = GameSpritesGroup(*world.texts)
+
+    world.texts[0].set_text('Player 1: {}'.format(player_dict[0].score))
+
+    world.texts[1].set_text('Player 2: {}'.format(player_dict[1].score))
+
+
+    # Button test
+    button = Button((100,100, 100,100))
+    # Creating groups containing sprites from different groups.
+    all_sprites = GameSpritesGroup(*text_sprites.sprites(), *player_sprites.sprites(), *tiles_sprites.sprites(), *bonuses_sprites.sprites(), button)
+    non_player_sprites = GameSpritesGroup(*tiles_sprites.sprites(), *text_sprites.sprites(), *bonuses_sprites.sprites())
+
+
+    # Game starts.
     while True:
-        # updating game
+        # Counting time between frames.
         time_passed = clock.tick(30)
 
-        # handling events
+        # Event handling.
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 sys.exit()
@@ -745,14 +751,41 @@ if __name__ == "__main__":
                 player = player_dict[p_id]
                 player.get_keys(e)
 
-        for key in player_dict:
-            player=player_dict[key]
-            player.collect(bonuses_sprites)
-#            print('player {} score {}, place {}'.format(key, player.score, (player.rect.x, player.rect.y)))
-        #if player_dict[0].global_events['game'] == 'victory':
-            #            print("Game complete!")
-        # drawing all sprites
+        # Cycling through players.
+        if not game_over:
+            for p_id in player_dict:
+                player=player_dict[p_id]
+                player.collect(bonuses_sprites)
+                # print('player {} score {}, place {}'.format(key, player.score, (player.rect.x, player.rect.y)))
+                event = player.global_events['game']
+                world.texts[p_id].set_text("Player {}: {}".format(p_id+1, player.score))
+                if event is not None:
+                    if event == 'end':
+                        result = world.check_scores()
+                        world.add_text(GameText, (500, 500, 2, 2), font, text_color2, size=32)
+                        result_text = world.texts[2]
+                        if result == 0:
+                            result_text.set_text("It's a draw!")
+                        else:
+                            result_text.change_color(text_color[p_id])
+                            result_text.set_text("Player {} wins".format(result))
+                        result_text.rect.center = (504,504)
+
+                        all_sprites.add(world.texts[2])
+                        game_over = True
+                        break
+
+        # Drawing all sprites on the display.
+        # Clearing all sprites.
         all_sprites.clear(screen, bg_image)
-        player_sprites.update()
+
+        # Updating moving objects (only players).
+        if not game_over:
+            player_sprites.update()
+
+        # Drawing all sprites.
         changed_rects = all_sprites.draw(screen, bg_image)
+
+        # Updating the display.
         pygame.display.update()
+
