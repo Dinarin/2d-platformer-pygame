@@ -39,8 +39,7 @@ class MenuButtons(pygame.Rect):
         num_col = len(b_ids)
 
         # Getting dimensions of columns.
-        b_height = int((self.height - spacing)/(num_col) - spacing)
-        print(b_height)
+        b_height = (self.height - spacing)/(num_col) - spacing
         b_width = self.width
         r_list = [(self.x, self.y + j * spacing + ((j - 1) * b_height),
                     b_width, b_height) for j in range(1, num_col + 1)]
@@ -70,27 +69,28 @@ if __name__ == "__main__":
     # Setting string variables.
     theme_path = './lib/buttons.json'
 
+    manager = pygame_gui.UIManager((800, 600), theme_path)
+    clock = pygame.time.Clock()
 
+    background = pygame.Surface((800, 600))
+    background.fill(manager.get_theme().get_colour('dark_bg'))
+
+    load_time_1 = clock.tick()
 
     button_row_width = 200
     button_row_height = 50
     spacing = 20
 
     rectangle = (300, 10, 500, 500)
-    main_menu = e_.GameMenus(rectangle)
-    main_menu.create_button_area((50, 10, 300, 300))
+    main_menu = e_.GameMenus(rectangle, manager)
+    main_menu.create_button_area((50, 10, 300, 200))
     main_menu.b_areas[0].create_buttons_col(main_menu_b, spacing)
     print(main_menu.b_areas[0].buttons.keys())
     m_buttons = main_menu.b_areas[0]
 
-    main_menu.manager = pygame_gui.UIManager((800, 600))
-    clock = pygame.time.Clock()
-
-    background = pygame.Surface((800, 600))
-    background.fill(main_menu.manager.get_theme().get_colour('dark_bg'))
-
     m_buttons.buttons['start']
-#    print('Button creation time taken:', load_time_2/1000.0, 'seconds.')
+    load_time_2 = clock.tick()
+    print('Button creation time taken:', load_time_2/1000.0, 'seconds.')
 
     is_running = True
 
@@ -108,12 +108,12 @@ if __name__ == "__main__":
                     if event.ui_object_id == '#quit':
                         is_running = False
 
-            main_menu.manager.process_events(event)
+            manager.process_events(event)
 
-        main_menu.manager.update(time_delta)
+        manager.update(time_delta)
 
         window_surface.blit(background, (0, 0))
-        main_menu.manager.draw_ui(main_menu.image)
+        manager.draw_ui(main_menu.image)
         main_menu.debug()
         window_surface.blit(main_menu.image, (0,0))
         pygame.display.update()
