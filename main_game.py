@@ -1,4 +1,5 @@
 import pygame
+import pygame_gui
 import sys
 import os
 from lib import visual as vi_
@@ -93,7 +94,7 @@ def start_game():
     # Setting number variables.
     screen_resolutions = [(640,360), (1024,576), (1280,720)]
     game_resolutions = [(300, 300), (400, 400), (600,600)]
-    menu_resolutions = [(210,300), (300,400), (400, 600)]
+    menu_resolutions = [(210,250), (300,350), (400, 450)]
     resolution = (1008,1008)
     bg_color = (0,35,69)
     spacing = 5
@@ -145,13 +146,21 @@ def start_game():
     screen = pygame.display.set_mode(screen_resolution)
     main_view = vi_.GameScreen(screen_resolution)
     main_view.set_bg_color((100,0,100))
+    theme_path = './lib/buttons.json'
+    manager = pygame_gui.UIManager(menu_resolution, theme_path)
 
     w_width, w_height = screen_resolution[0], screen_resolution[1]
-    main_menu = e_.GameMenus((0, 0, *menu_resolution))
-    buttons1 = main_menu.create_button_area((0,0, menu_resolution[0], menu_resolution[1]))
-    buttons1.center = main_view.rect.center
+
+
+    main_menu = e_.GameMenus((0, 0, *menu_resolution), manager)
+
+    main_menu.background.fill(manager.get_theme().get_colour('dark_bg'))
+
+    main_menu.create_button_area((0,0, menu_resolution[0], menu_resolution[1]))
+    main_menu.rect.center = main_view.rect.center
+    buttons1 = main_menu.b_areas[0]
     active_windows = e_.GameSpritesGroup(main_menu)
-    buttons1.create_buttons_col(main_menu_b, spacing)
+    main_menu.b_areas[0].create_buttons_col(main_menu_b, spacing)
 
     # Creating pygame clock object.
     clock = pygame.time.Clock()
@@ -167,16 +176,17 @@ def start_game():
                 is_running = False
             # if game is running
 #            get_player_keys()
-            main_menu.manager.process_events(e)
-        main_menu.manager.update(time_passed)
+            manager.process_events(e)
+        manager.update(time_passed)
 
         # Drawing all sprites on the display.
         # Clearing all sprites.
         active_windows.clear(main_view.image, main_view.background)
 
         # Drawing all sprites.
-        main_menu.manager.draw_ui(main_menu.image)
+        manager.draw_ui(main_menu.image)
 #        main_menu.debug()
+        print(active_windows)
         changed_rects = active_windows.draw(main_view.image, main_view.background)
 
         # Scaling the image down.

@@ -181,16 +181,15 @@ class GameMenus(GameObjects):
 
         Arguments:
     """
-    theme_path=''
-    def __init__(self, rect):
+    def __init__(self, rect, manager):
         super().__init__(rect)
         self.b_areas = []
-        self.manager = pygame_gui.UIManager((self.rect.width, self.rect.height))  # theme path
+        self.manager = manager
+        self.background = pygame.Surface((self.rect.width, self.rect.height))
 
     def create_button_area(self, rect):
         b_area = b_.MenuButtons(rect, self.manager, self.image)
         self.b_areas.append(b_area)
-        return b_area
 
     def debug(self):
         # blit menus on self.
