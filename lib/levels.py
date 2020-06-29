@@ -23,7 +23,7 @@ class LevelData:
                 the map.
     """
     # valid map files
-    valid_maps = ['0', '1', '2', '3', '4']
+    valid_maps = ['0', '1', '2', '3', '4', '5', '6']
     # map encoding
     map_symb = {
             'p': 'player',
