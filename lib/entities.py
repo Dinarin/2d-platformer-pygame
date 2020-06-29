@@ -6,6 +6,7 @@ from lib import vector as v_
 from lib import spritesheetgaps as sp_
 from lib import pyganim as anim_
 from lib import levels as l_
+from lib import buttons as b_
 from levels import tilesets as ts_
 from pygame import freetype
 
@@ -173,6 +174,27 @@ class GameObjects(pygame.sprite.DirtySprite):
         self.rects['left'] = pygame.Rect(left_rect)
         self.rects['bottom'] = pygame.Rect(bottom_rect)
         self.rects['right'] = pygame.Rect(right_rect)
+
+class GameMenus(GameObjects):
+    """Class for game menus.
+
+        Arguments:
+    """
+    def __init__(self, rect, manager):
+        super().__init__(rect)
+        self.b_areas = []
+        self.manager = manager
+
+    def create_button_area(self, rect):
+        b_area = b_.MenuButtons(rect, self.manager, self.image)
+        self.b_areas.append(b_area)
+
+    def debug(self):
+        # blit menus on self.
+        for b_area in self.b_areas:
+            pygame.draw.rect(self.image, (255, 0, 0), b_area, 1)
+
+
 
 class GameSpritesGroup(pygame.sprite.LayeredDirty):
     """Class for game sprite groups.
