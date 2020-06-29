@@ -262,20 +262,6 @@ class GameText(GameObjects):
 #    def __
 
 
-class Button(GameObjects):
-    def __init__(self, rect):
-        """Parent class for pygame buttons.
-        """
-        super().__init__(rect)
-        pygame.draw.rect(self.image, (0,0,0), self.rect)
-
-    def detect(self):
-        pass
-    def activate(self):
-        pass
-
-    def update(self):
-        pass
 
 
 
