@@ -151,13 +151,12 @@ def start_game():
 
     w_width, w_height = screen_resolution[0], screen_resolution[1]
 
-
-    main_menu = e_.GameMenus((0, 0, *menu_resolution), manager)
+    left = int((screen_resolution[0] - menu_resolution[0])/2)
+    main_menu = e_.GameMenus((left-1, 10, *menu_resolution), manager)
 
     main_menu.background.fill(manager.get_theme().get_colour('dark_bg'))
 
-    main_menu.create_button_area((0,0, menu_resolution[0], menu_resolution[1]))
-    main_menu.rect.center = main_view.rect.center
+    main_menu.create_button_area((0, 0, menu_resolution[0], menu_resolution[1]))
     buttons1 = main_menu.b_areas[0]
     active_windows = e_.GameSpritesGroup(main_menu)
     main_menu.b_areas[0].create_buttons_col(main_menu_b, spacing)
@@ -171,27 +170,40 @@ def start_game():
         time_passed = clock.tick(30)/1000.0
 
         # Event handling.
-        for e in pygame.event.get():
-            if e.type == pygame.QUIT:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
                 is_running = False
             # if game is running
 #            get_player_keys()
-            manager.process_events(e)
+            if event.type == pygame.USEREVENT:
+                if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                    if event.ui_object_id == '#start':
+                        print("Start Game")
+                    if event.ui_object_id == '#settings':
+                        print("Settings")
+                    if event.ui_object_id == '#quit':
+                        is_running = False
+
+            manager.process_events(event)
         manager.update(time_passed)
 
         # Drawing all sprites on the display.
         # Clearing all sprites.
         active_windows.clear(main_view.image, main_view.background)
 
+        main_menu.image.blit(main_menu.background, (0,0))
+
         # Drawing all sprites.
         manager.draw_ui(main_menu.image)
-#        main_menu.debug()
+        main_menu.debug()
+
+
+#        main_view.image.blit(main_menu.image, (main_view.rect.centerx-int(main_menu.rect.width/2), 100))
         print(active_windows)
         changed_rects = active_windows.draw(main_view.image, main_view.background)
 
         # Scaling the image down.
-        new_image = pygame.transform.smoothscale(main_view.image, screen_resolution)
-        screen.blit(new_image, (0,0))
+        screen.blit(main_view.image, (0,0))
 
         # Updating the display.
         pygame.display.update()
